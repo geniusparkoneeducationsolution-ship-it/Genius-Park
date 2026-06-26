@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genius Park · Head of Operations & QC Command Center</title>
+<style>
+  :root{
+    --bg:#070f1d; --bg2:#0a1424; --panel:#0e2645; --panel2:#0c2241; --card:#102a4d;
+    --ink:#eaf1fb; --mut:#9fb6d6; --dim:#6f86a8;
+    --accent:#2dd4bf; --accent2:#7ff0e0; --gold:#e9c46a; --red:#ff6b6b; --green:#34d399;
+    --amber:#fbbf24; --blue:#6aa9ff; --purple:#a78bfa;
+    --line:rgba(127,240,224,.14); --line2:rgba(255,255,255,.07);
+    --glow:0 0 24px rgba(45,212,191,.25);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .hidden{display:none !important;}
+  /* animated background field */
+  .bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .bgfx::before,.bgfx::after{content:"";position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;}
+  .bgfx::before{width:560px;height:560px;background:radial-gradient(circle,rgba(45,212,191,.20),transparent 70%);
+    top:-120px;right:-80px;animation:float1 18s ease-in-out infinite;}
+  .bgfx::after{width:620px;height:620px;background:radial-gradient(circle,rgba(106,169,255,.16),transparent 70%);
+    bottom:-160px;left:-120px;animation:float2 22s ease-in-out infinite;}
+  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,50px)}}
+  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(70px,-40px)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes popIn{0%{opacity:0;transform:scale(.92)}60%{transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
+  @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,107,.5)}70%{box-shadow:0 0 0 8px rgba(255,107,107,0)}100%{box-shadow:0 0 0 0 rgba(255,107,107,0)}}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 14px rgba(45,212,191,.15)}50%{box-shadow:0 0 26px rgba(45,212,191,.4)}}
+  @keyframes barGrow{from{width:0 !important}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes riseGlow{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  /* ============ LOGIN GATE ============ */
+  .gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(1200px 700px at 70% -10%,#0d3b3a 0%,transparent 55%),
+               radial-gradient(900px 600px at -10% 110%,#10294a 0%,transparent 55%),#060d18;padding:24px;}
+  .gatecard{width:100%;max-width:430px;background:linear-gradient(165deg,rgba(16,42,77,.95),rgba(10,28,56,.95));
+    border:1px solid var(--line);border-radius:22px;padding:38px 34px;text-align:center;
+    box-shadow:0 40px 100px rgba(0,0,0,.6),var(--glow);animation:riseGlow .7s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+  .gatelogo{width:66px;height:66px;border-radius:18px;margin:0 auto 16px;
+    background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:#06201d;font-size:26px;box-shadow:var(--glow);animation:glowPulse 3s ease-in-out infinite;}
+  .gatecard h1{font-size:21px;font-weight:900;letter-spacing:.3px;}
+  .gatecard h1 b{background:linear-gradient(90deg,var(--accent),var(--gold),var(--accent2));background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite;}
+  .gatecard .tag{font-size:11px;color:var(--mut);letter-spacing:2.5px;text-transform:uppercase;margin-top:6px;}
+  .gateform{margin-top:24px;text-align:left;}
+  .gateform label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:800;display:block;margin:0 0 6px 2px;}
+  .gateform input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:11px;
+    padding:13px 14px;color:#fff;font-size:14px;margin-bottom:14px;transition:.2s;}
+  .gateform input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.15);}
+  .gatebtn{width:100%;padding:14px;border-radius:12px;font-weight:900;font-size:15px;letter-spacing:.3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));color:#06201d;transition:.2s;box-shadow:var(--glow);}
+  .gatebtn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(45,212,191,.4);}
+  .gateerr{color:var(--red);font-size:12.5px;margin-top:10px;min-height:16px;font-weight:600;}
+  .demo{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px;text-align:left;}
+  .demo .dh{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:8px;}
+  .demo .dchip{display:inline-block;font-size:11px;color:var(--accent2);background:rgba(45,212,191,.08);
+    border:1px solid var(--line);border-radius:7px;padding:4px 8px;margin:3px;cursor:pointer;transition:.15s;}
+  .demo .dchip:hover{background:rgba(45,212,191,.2);transform:translateY(-1px);}
+  /* ============ APP LAYOUT ============ */
+  .app{display:grid;grid-template-columns:236px 1fr;grid-template-rows:58px 1fr;height:100vh;position:relative;z-index:1;}
+  .topbar{grid-column:1/3;background:linear-gradient(90deg,rgba(7,16,29,.92),rgba(11,29,56,.92));
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 18px;z-index:20;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--gold));
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:#06201d;font-size:15px;
+    box-shadow:var(--glow);animation:glowPulse 4s ease-in-out infinite;}
+  .brand .nm{font-weight:800;letter-spacing:.4px;font-size:14.5px;}
+  .brand .nm b{background:linear-gradient(90deg,var(--accent),var(--accent2));background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite;}
+  .brand .sub{font-size:9.5px;color:var(--mut);letter-spacing:1.4px;text-transform:uppercase;}
+  .spacer{flex:1;}
+  .rolebox{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:5px 10px;}
+  .rolebox label{font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;}
+  .rolebox select{background:var(--panel);color:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px;font-weight:700;}
+  .userchip{display:flex;align-items:center;gap:8px;background:rgba(45,212,191,.08);border:1px solid var(--line);border-radius:10px;padding:5px 11px;}
+  .userchip .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:#06201d;font-size:12px;}
+  .userchip .un{font-size:12.5px;font-weight:800;color:#fff;line-height:1.1;}
+  .userchip .ur{font-size:9.5px;color:var(--mut);}
+  .tbtn{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink);border-radius:9px;
+    padding:8px 12px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;transition:.18s;}
+  .tbtn:hover{background:rgba(45,212,191,.16);border-color:var(--accent);transform:translateY(-1px);}
+  .tbtn.gold{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#06201d;border:none;}
+  .tbtn.gold:hover{box-shadow:var(--glow);}
+  /* sidebar */
+  .side{background:rgba(8,18,33,.6);border-right:1px solid var(--line);padding:14px 10px;overflow-y:auto;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+  .navsec{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin:14px 8px 6px;font-weight:800;}
+  .nav{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:var(--mut);
+    font-weight:600;font-size:13.5px;margin-bottom:2px;width:100%;text-align:left;background:none;transition:.16s;position:relative;}
+  .nav:hover{background:rgba(255,255,255,.04);color:var(--ink);transform:translateX(2px);}
+  .nav.on{background:linear-gradient(90deg,rgba(45,212,191,.20),rgba(45,212,191,.03));color:#fff;box-shadow:inset 2px 0 0 var(--accent);}
+  .nav .ic{width:18px;text-align:center;color:var(--accent);font-size:15px;}
+  .nav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px;min-width:18px;text-align:center;animation:pulse 2.2s infinite;}
+  .nav .badge.amber{background:var(--amber);color:#06201d;animation:none;}
+  .whoami{margin:8px 6px 4px;padding:11px;border-radius:12px;background:rgba(45,212,191,.07);border:1px solid var(--line);animation:fadeUp .5s both;}
+  .whoami .r{font-size:13px;font-weight:800;color:#fff;}
+  .whoami .d{font-size:10.5px;color:var(--mut);margin-top:3px;line-height:1.4;}
+  /* main */
+  .main{overflow-y:auto;padding:20px 24px 60px;position:relative;}
+  .demobar{background:rgba(233,196,106,.10);border:1px solid rgba(233,196,106,.4);color:#f3e6c8;border-radius:11px;
+    padding:9px 14px;font-size:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:fadeUp .4s both;}
+  .demobar b{color:var(--gold);}
+  .pagehead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px;animation:fadeUp .45s both;}
+  .pagehead h1{font-size:25px;font-weight:900;letter-spacing:-.4px;}
+  .pagehead .sub{font-size:13px;color:var(--mut);margin-top:2px;}
+  /* card strips */
+  .revstrip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:16px 0;}
+  @media(max-width:1200px){.revstrip{grid-template-columns:repeat(3,1fr);}}
+  .revcard,.mcard{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;animation:popIn .5s both;transition:.2s;}
+  .revcard:hover,.mcard:hover{transform:translateY(-3px);border-color:rgba(45,212,191,.4);box-shadow:0 12px 30px rgba(0,0,0,.35);}
+  .revcard::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);}
+  .revcard .lab,.mcard .lab{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:800;}
+  .revcard .val,.mcard .val{font-size:23px;font-weight:900;margin-top:6px;color:#fff;}
+  .mcard .val{font-size:26px;}
+  .mcard .val small{font-size:13px;color:var(--mut);font-weight:600;}
+  .revcard .sub,.mcard .tr{font-size:11px;color:var(--dim);margin-top:3px;font-weight:700;}
+  .revcard.exp .val{color:var(--blue);} .revcard.comm .val{color:var(--accent2);}
+  .revcard.recv .val{color:var(--gold);} .revcard.real .val{color:var(--green);}
+  .revcard.risk .val{color:var(--amber);} .revcard.lost .val{color:var(--red);}
+  .up{color:var(--green);} .down{color:var(--red);}
+  .mstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0;}
+  .revstrip .revcard:nth-child(1),.mstrip .mcard:nth-child(1){animation-delay:.04s}
+  .revstrip .revcard:nth-child(2),.mstrip .mcard:nth-child(2){animation-delay:.10s}
+  .revstrip .revcard:nth-child(3),.mstrip .mcard:nth-child(3){animation-delay:.16s}
+  .revstrip .revcard:nth-child(4),.mstrip .mcard:nth-child(4){animation-delay:.22s}
+  .revstrip .revcard:nth-child(5),.mstrip .mcard:nth-child(5){animation-delay:.28s}
+  .revstrip .revcard:nth-child(6),.mstrip .mcard:nth-child(6){animation-delay:.34s}
+  .cols{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;margin-top:8px;}
+  @media(max-width:1050px){.cols{grid-template-columns:1fr;}}
+  .panel{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:15px;
+    padding:16px 18px;margin-bottom:16px;animation:fadeUp .5s both;transition:.2s;}
+  .panel:hover{border-color:rgba(127,240,224,.25);}
+  .panel h3{font-size:13px;letter-spacing:.4px;color:#fff;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+  .panel h3 .tag{margin-left:auto;font-size:10px;color:var(--mut);font-weight:700;letter-spacing:0;text-transform:none;}
+  .panel h3 .ic{color:var(--accent);}
+  .alert{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2);font-size:13px;animation:fadeUp .4s both;}
+  .alert:last-child{border:none;}
+  .dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none;}
+  .dot.red{background:var(--red);animation:pulse 2s infinite;} .dot.amber{background:var(--amber);} .dot.blue{background:var(--blue);}
+  .alert .txt{flex:1;color:#dbe7f8;} .alert .txt b{color:#fff;}
+  .alert .act{font-size:11px;color:var(--accent2);font-weight:700;background:rgba(45,212,191,.12);border:1px solid var(--line);border-radius:7px;padding:4px 9px;white-space:nowrap;transition:.15s;}
+  .alert .act:hover{background:rgba(45,212,191,.28);transform:translateX(2px);}
+  .funnel{display:flex;flex-direction:column;gap:6px;}
+  .fstage{display:flex;align-items:center;gap:10px;}
+  .fstage .nm{width:120px;font-size:12px;color:var(--mut);font-weight:600;}
+  .fbar{flex:1;height:24px;background:rgba(255,255,255,.04);border-radius:6px;overflow:hidden;}
+  .fbar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:6px;
+    display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:800;color:#06201d;min-width:24px;
+    animation:barGrow 1s cubic-bezier(.2,.8,.2,1) both;}
+  .fstage.gate .nm{color:var(--red);font-weight:800;}
+  .fstage.gate .fbar .fill{background:linear-gradient(90deg,var(--red),#ff9b9b);}
+  .heat{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .hcell{background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:10px;padding:9px 11px;transition:.2s;animation:popIn .5s both;}
+  .hcell:hover{transform:scale(1.03);}
+  .hcell .hl{font-size:11px;color:var(--mut);}
+  .hcell .hv{font-size:18px;font-weight:900;margin-top:2px;}
+  .hcell.good .hv{color:var(--green);} .hcell.warn .hv{color:var(--amber);} .hcell.bad .hv{color:var(--red);}
+  .hcell.leak{border-color:var(--red);box-shadow:0 0 0 1px rgba(255,107,107,.3);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:800;padding:8px 10px;border-bottom:1px solid var(--line);}
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--line2);vertical-align:middle;}
+  tbody tr{transition:.12s;} tbody tr:hover td{background:rgba(45,212,191,.05);cursor:pointer;}
+  td b{color:#fff;}
+  .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.3px;}
+  .pill.lead{background:rgba(106,169,255,.16);color:var(--blue);} .pill.qual{background:rgba(127,240,224,.16);color:var(--accent2);}
+  .pill.app{background:rgba(106,169,255,.16);color:var(--blue);} .pill.qc{background:rgba(255,107,107,.16);color:var(--red);}
+  .pill.offer{background:rgba(52,211,153,.16);color:var(--green);} .pill.deposit{background:rgba(233,196,106,.18);color:var(--gold);}
+  .pill.visa{background:rgba(127,240,224,.16);color:var(--accent2);} .pill.enrolled{background:rgba(52,211,153,.22);color:var(--green);}
+  .pill.dropped{background:rgba(255,107,107,.14);color:#ff9b9b;} .pill.pending{background:rgba(251,191,36,.16);color:var(--amber);}
+  .pill.pass{background:rgba(52,211,153,.18);color:var(--green);} .pill.fail{background:rgba(255,107,107,.18);color:var(--red);}
+  .pill.gray{background:rgba(255,255,255,.08);color:var(--mut);}
+  .mask{color:var(--dim);letter-spacing:2px;font-weight:800;-webkit-user-select:none;user-select:none;}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--ink);font-weight:600;}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+  .filters select,.filters input{background:var(--panel);color:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px;}
+  .tiny{font-size:11px;color:var(--dim);}
+  .lb{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2);animation:fadeUp .4s both;}
+  .lb:last-child{border:none;}
+  .lb .rank{width:26px;height:26px;border-radius:8px;background:rgba(45,212,191,.15);color:var(--accent2);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .lb .rank.r1{background:linear-gradient(135deg,var(--gold),#fff3cc);color:#5a4500;}
+  .lb .who{flex:1;}.lb .who .n{font-weight:700;color:#fff;font-size:13px;}.lb .who .role{font-size:10.5px;color:var(--mut);}
+  .lb .stat{text-align:center;min-width:54px;}.lb .stat .v{font-weight:900;font-size:15px;}.lb .stat .l{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;}
+  .stars{color:var(--gold);font-size:12px;}
+  .ovl{position:fixed;inset:0;background:rgba(4,10,20,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;animation:fadeUp .25s;}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6),var(--glow);animation:popIn .35s;}
+  .mhead{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2;}
+  .mhead h2{font-size:18px;font-weight:800;}
+  .mhead .x{background:rgba(255,255,255,.08);border-radius:8px;width:30px;height:30px;color:#fff;font-size:16px;transition:.15s;}
+  .mhead .x:hover{background:rgba(255,107,107,.2);}
+  .mbody{padding:20px 22px;}
+  .frow{margin-bottom:14px;}
+  .frow label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);font-weight:800;margin-bottom:6px;}
+  .frow input,.frow select,.frow textarea{width:100%;background:var(--bg2);color:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:13.5px;font-family:inherit;}
+  .frow textarea{resize:vertical;min-height:70px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px;}
+  .kv .k{color:var(--mut);}.kv .v{color:#fff;font-weight:700;text-align:right;}
+  .hist{font-size:12px;color:var(--mut);padding:6px 0;border-bottom:1px dashed var(--line2);}
+  .hist b{color:var(--accent2);}
+  .qcitem{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13px;}
+  .qcitem input{width:18px;height:18px;accent-color:var(--accent);}
+  .mfoot{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--panel);flex-wrap:wrap;}
+  .btn{padding:10px 18px;border-radius:9px;font-weight:800;font-size:13px;transition:.18s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#06201d;}
+  .btn.primary:hover{box-shadow:var(--glow);}
+  .btn.ghost{background:rgba(255,255,255,.07);color:var(--ink);border:1px solid var(--line);}
+  .btn.danger{background:rgba(255,107,107,.16);color:#ff9b9b;border:1px solid rgba(255,107,107,.4);}
+  .btn.green{background:rgba(52,211,153,.18);color:var(--green);border:1px solid rgba(52,211,153,.4);}
+  .btn.gold{background:linear-gradient(90deg,var(--gold),#f3d98a);color:#5a4500;}
+  .lockmsg{text-align:center;padding:60px 20px;color:var(--mut);animation:fadeUp .5s;}
+  .lockmsg .big{font-size:46px;margin-bottom:10px;}
+  .note-s{font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.5;}
+  .secrow{display:flex;gap:8px;align-items:center;margin:5px 0;font-size:12.5px;color:#dbe7f8;}
+  .secrow .ok{color:var(--green);font-weight:800;}
+  ::-webkit-scrollbar{width:10px;height:10px;}::-webkit-scrollbar-thumb{background:#1b3a5e;border-radius:6px;}::-webkit-scrollbar-thumb:hover{background:#27517f;}
+</style>
+</head>
+<body>
+<div class="bgfx"></div>
+
+<!-- ============ LOGIN GATE ============ -->
+<div class="gate" id="gate">
+  <div class="gatecard">
+    <div class="gatelogo">GP</div>
+    <h1>Head of Operations &amp; QC<br><b>Command Center</b></h1>
+    <div class="tag">Genius Park · Revenue Engine</div>
+    <div class="gateform">
+      <label for="luser">User ID</label>
+      <input id="luser" placeholder="e.g. head" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <label for="lpass">Password</label>
+      <input id="lpass" type="password" placeholder="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="gatebtn" onclick="doLogin()">Sign in →</button>
+      <div class="gateerr" id="lerr"></div>
+      <div id="cloudLoginWrap" style="margin-top:14px;border-top:1px solid var(--line2);padding-top:14px;display:none">
+        <label for="cuser">Cloud email</label>
+        <input id="cuser" placeholder="you@geniuspark…" autocomplete="username" onkeydown="if(event.key==='Enter')doCloudLogin()">
+        <label for="cpass">Cloud password</label>
+        <input id="cpass" type="password" placeholder="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doCloudLogin()">
+        <button class="gatebtn" style="background:linear-gradient(90deg,var(--blue),#9cc3ff);color:#06121a" onclick="doCloudLogin()">☁ Cloud sign in (live sync)</button>
+      </div>
+      <div style="margin-top:12px;font-size:11.5px;color:var(--accent2);cursor:pointer;font-weight:700" onclick="toggleCloudLogin()" id="cloudToggleLink">☁ Use cloud sign-in for live team sync →</div>
+    </div>
+    <div class="demo" id="demoBox">
+      <div class="dh">Demo logins — click to fill (change in Access Management)</div>
+      <div id="demoChips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app hidden" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">GP</div>
+      <div>
+        <div class="nm">Head of Ops &amp; QC · <b>Command Center</b></div>
+        <div class="sub">Genius Park · Revenue Engine</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn" onclick="location.href='GPOS.html'" title="Back to GPOS Command Center">◀ GPOS</button>
+    <div class="rolebox hidden" id="roleboxWrap">
+      <label for="roleSel">Preview as</label>
+      <select id="roleSel" title="Preview role" aria-label="Preview role" onchange="previewRole(this.value)"></select>
+    </div>
+    <button class="tbtn" onclick="backup()">⬇ Backup</button>
+    <button class="tbtn" onclick="document.getElementById('restoreFile').click()">⬆ Restore</button>
+    <input type="file" id="restoreFile" accept="application/json" class="hidden" onchange="restore(event)">
+    <div class="userchip"><div class="av" id="uav">U</div><div><div class="un" id="uname">User</div><div class="ur" id="urole">role</div></div></div>
+    <button class="tbtn" onclick="logout()" title="Sign out">⎋</button>
+  </div>
+  <div class="side" id="side"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* ============================================================
+   GENIUS PARK · HEAD OF OPERATIONS & QC COMMAND CENTER
+   Single-file, offline-first (localStorage gpscos_db_v1).
+   Login-gated. Revenue: USD $1000 / successful enrollment,
+   recognized when the university pays our commission (≤6 months
+   after the student pays tuition). Honors MD's 5 access rules.
+   ============================================================ */
+const LS_KEY='gpscos_db_v1', SESS_KEY='gpscos_session';
+const PER_ENROLL_USD=1000;              // our commission per successful enrollment
+const COMMISSION_WINDOW_DAYS=180;       // university pays us within 6 months of tuition
+let DB=null, CUR=null, SESSION=null, TAB='deck';
+
+/* ---------- ROLES ---------- */
+const ROLES={
+  md:        {id:'md',        label:'MD / CEO (Owner)',          desc:'Full access. ONLY role that sees revenue & all commissions.'},
+  head:      {id:'head',      label:'Head of Operations & QC',   desc:'Runs the floor & both QC gates. Sees pipeline, team, QC — NOT revenue. Own commission only. Sole authority to assign leads.'},
+  tl:        {id:'tl',        label:'Team Leader cum Sr. Counselor', desc:'Floor lead. Sees the pod’s students. Own commission only.'},
+  counselor: {id:'counselor', label:'General Counselor',         desc:'Own students & own commission only.'},
+  reception: {id:'reception', label:'Jr. Counselor / Receptionist', desc:'Front desk: captures intake. Cannot assign, cannot see revenue.'},
+  qc:        {id:'qc',        label:'QC Officer',                desc:'QC queues & checklists only.'},
+  ambassador:{id:'ambassador',label:'Lead Ambassador',           desc:'Submit leads + see only own leads, own commission & own campus team.'}
+};
+
+/* ---------- PERMISSIONS (the 5 rules) ---------- */
+function canSeeRevenue(){ return CUR.role==='md'; }
+function canSeeAllCommission(){ return CUR.role==='md'; }
+function canAssignLeads(){ return CUR.role==='md'||CUR.role==='head'; }
+function canAddLead(){ return ['md','head','reception'].includes(CUR.role); }
+function canRunQC(){ return ['md','head','qc'].includes(CUR.role); }
+function isAdmin(){ return SESSION&&SESSION.role==='md'; }
+
+/* ---------- SEED ---------- */
+function seed(){
+  const now=Date.now(), H=3600e3, D=24*H;
+  return {
+    meta:{version:LS_KEY, org:'Genius Park One Education Solution', updated:new Date().toISOString(), demo:true},
+    config:{
+      countries:['Sweden','Germany','Finland','Ireland','UK','Canada','Australia','New Zealand'],
+      stages:[
+        {id:'lead',name:'Lead'},{id:'qualified',name:'Qualified'},{id:'application',name:'Application'},
+        {id:'qc_app',name:'QC Gate · Application',gate:true},{id:'submitted',name:'Submitted'},
+        {id:'offer',name:'Offer'},{id:'deposit',name:'Tuition Deposit'},{id:'visa_prep',name:'Visa Prep'},
+        {id:'qc_visa',name:'QC Gate · Visa',gate:true},{id:'visa_submit',name:'Visa Submitted'},
+        {id:'enrolled',name:'Enrolled'}
+      ],
+      perEnrollUSD:PER_ENROLL_USD,
+      qcApp:['Passport uploaded & valid','Academic transcripts verified','IELTS/English proof attached','SOP drafted & coherent','University & program eligible','Application form complete'],
+      qcVisa:['SOP financial narrative consistent','Proof of funds correct format & amount','Sponsor/affidavit valid','Translations & attestations done','Gap justification (if any)','Country-specific checklist cleared']
+    },
+    users:[
+      {u:'md',p:'md123',role:'md',personId:'u_md',active:true},
+      {u:'head',p:'head123',role:'head',personId:'u_head',active:true},
+      {u:'tl',p:'tl123',role:'tl',personId:'u_tl',active:true},
+      {u:'counselor',p:'coun123',role:'counselor',personId:'u_gc',active:true},
+      {u:'reception',p:'recep123',role:'reception',personId:'u_jr',active:true},
+      {u:'qc',p:'qc123',role:'qc',personId:'u_qc',active:true},
+      {u:'ambassador',p:'amb123',role:'ambassador',personId:'amb_eu',active:true}
+    ],
+    people:[
+      {id:'u_md',  name:'Md Jubayer Rahman', role:'md',        title:'Managing Director'},
+      {id:'u_head',name:'(You)',             role:'head',      title:'Head of Operations & QC'},
+      {id:'u_tl',  name:'Team Leader (demo)',role:'tl',        title:'Team Leader cum Sr. Counselor'},
+      {id:'u_gc',  name:'Gen. Counselor (demo)',role:'counselor',title:'General Counselor'},
+      {id:'u_jr',  name:'Jr. Counselor (demo)',role:'reception', title:'Jr. Counselor / Receptionist'},
+      {id:'u_qc',  name:'QC Officer (demo)', role:'qc',        title:'QC Officer'}
+    ],
+    ambassadors:[
+      {id:'amb_eu',name:'EU Lead Ambassador (demo)',region:'Europe',campus:[{id:'camp_1',name:'Campus Amb. — DU (demo)'},{id:'camp_2',name:'Campus Amb. — NSU (demo)'}]},
+      {id:'amb_au',name:'AU/NZ Ambassador (demo)',region:'Australia/NZ',campus:[]}
+    ],
+    students:[
+      st('s1','Demo: Tahmid R.','ambassador','amb_eu',null,'Sweden','qc_app','u_gc',now-2*D,now-6*H,'Application in QC review','Run QC Gate 1',now+1*D),
+      st('s2','Demo: Rina A.','ambassador','amb_eu','camp_1','Germany','qc_visa','u_tl',now-22*D,now-2*H,'Visa file awaiting QC','Run QC Gate 2',now+3*D),
+      st('s3','Demo: Sabbir H.','facebook',null,null,'Ireland','offer','u_gc',now-14*D,now-26*H,'Offer received — push to deposit','Collect tuition deposit',now+2*D),
+      st('s4','Demo: Nadia K.','walkin',null,null,'UK','deposit','u_tl',now-18*D,now-5*D,'Tuition deposit pending 5 days','Chase deposit',now-1*D),
+      st('s5','Demo: Faisal M.','referral',null,null,'Canada','application','u_gc',now-5*D,now-30*H,'Building application','Complete SOP',now+4*D),
+      enrolledSt('s6','Demo: Anika S.','ambassador','amb_au',null,'Australia','u_tl',now-60*D,now-30*D,now-25*D,null),  // tuition paid, commission receivable
+      st('s7','Demo: Imran C.','website',null,null,'Finland','qualified','u_jr',now-1*D,now-20*H,'Qualified — needs counselor','Assign counselor',now+1*D),
+      st('s8','Demo: Mehjabin','seminar',null,null,'Sweden','visa_submit','u_tl',now-40*D,now-3*D,'Visa submitted — awaiting decision','Track decision',now+9*D),
+      st('s9','Demo: Rakib','ambassador','amb_eu','camp_2','Germany','dropped','u_gc',now-30*D,now-12*D,'Went cold — recover','Re-engage',null),
+      enrolledSt('s13','Demo: Priya D.','referral',null,null,'Ireland','u_gc',now-200*D,now-150*D,now-140*D,now-10*D), // realized: commission received
+      st('s10','Demo: Tania (new)','ambassador','amb_eu',null,'Ireland','lead',null,now-30*H,now-30*H,'NEW LEAD — assign within 24h','Assign counselor',now-6*H),
+      st('s11','Demo: Junaid (new)','facebook',null,null,'UK','lead',null,now-3*H,now-3*H,'NEW LEAD — qualify & assign','Assign counselor',now+21*H),
+      st('s12','Demo: Sumona (new)','walkin',null,null,'Canada','lead',null,now-28*H,now-28*H,'NEW LEAD — breached 24h SLA','Assign counselor',now-4*H)
+    ],
+    qcReviews:[
+      {id:'qc1',studentId:'s2',gate:'app',result:'pass',firstTimePass:true,reviewer:'u_head',ts:now-20*D,feedback:'Clean file.'},
+      {id:'qc2',studentId:'s9',gate:'app',result:'fail',firstTimePass:false,reviewer:'u_head',ts:now-25*D,feedback:'Financial narrative weak.'}
+    ],
+    refusals:[],
+    commissions:[
+      {id:'c1',type:'ambassador',beneficiary:'amb_eu',studentId:'s6',amountUSD:300,status:'vesting',vestsAt:now+30*D},
+      {id:'c2',type:'campus',beneficiary:'camp_1',parent:'amb_eu',studentId:'s2',amountUSD:120,status:'pending',vestsAt:null},
+      {id:'c3',type:'counselor',beneficiary:'u_tl',studentId:'s6',amountBDT:6000,status:'pending',vestsAt:null},
+      {id:'c4',type:'counselor',beneficiary:'u_gc',studentId:'s13',amountBDT:4000,status:'paid',vestsAt:now-8*D},
+      {id:'c5',type:'head',beneficiary:'u_head',studentId:'s6',amountBDT:0,status:'set-by-md',note:'Amount set by MD from GPOS'}
+    ],
+    audit:[{id:'a1',actor:'System',action:'Seeded demo data',detail:'Sample records loaded',ts:now-1*H}]
+  };
+}
+function st(id,name,source,ambassadorId,campusId,country,stage,counselorId,createdAt,lastUpdate,nextAction,nextLabel,nextDeadline){
+  const prob={lead:.15,qualified:.30,application:.45,qc_app:.50,submitted:.55,offer:.65,deposit:.80,visa_prep:.82,qc_visa:.85,visa_submit:.90,enrolled:1,dropped:0}[stage]??.3;
+  return {id,name,source,ambassadorId,campusId,country,stage,counselorId,owner:counselorId||'u_head',
+    nextAction,nextLabel,nextDeadline,createdAt,lastUpdate,
+    revenue:{usd:PER_ENROLL_USD,prob,state:stage==='dropped'?'lost':'expected',enrolledAt:null,tuitionPaidAt:null,commissionDueBy:null,realizedAt:null},
+    history:[{ts:createdAt,who:'System',note:'Lead created · source: '+source}],docs:[],notes:[]};
+}
+function enrolledSt(id,name,source,ambassadorId,campusId,country,counselorId,createdAt,enrolledAt,tuitionPaidAt,realizedAt){
+  const s=st(id,name,source,ambassadorId,campusId,country,'enrolled',counselorId,createdAt,realizedAt||tuitionPaidAt||enrolledAt,'Enrolled — won','Collect commission',null);
+  s.revenue.enrolledAt=enrolledAt; s.revenue.tuitionPaidAt=tuitionPaidAt;
+  s.revenue.commissionDueBy=tuitionPaidAt?tuitionPaidAt+COMMISSION_WINDOW_DAYS*864e5:null;
+  s.revenue.realizedAt=realizedAt;
+  s.revenue.state = realizedAt?'realized' : tuitionPaidAt?'receivable':'committed';
+  s.history.unshift({ts:enrolledAt,who:'System',note:'Enrolled at university'});
+  if(tuitionPaidAt)s.history.unshift({ts:tuitionPaidAt,who:'System',note:'Student paid tuition — commission receivable'});
+  if(realizedAt)s.history.unshift({ts:realizedAt,who:'System',note:'University paid our commission — revenue realized'});
+  return s;
+}
+
+/* ---------- PERSISTENCE ---------- */
+function load(){ try{const r=localStorage.getItem(LS_KEY);DB=r?JSON.parse(r):seed();}catch(e){DB=seed();} if(!DB.students||!DB.users)DB=seed(); }
+function save(){ DB.meta.updated=new Date().toISOString(); localStorage.setItem(LS_KEY,JSON.stringify(DB)); if(typeof cloudPush==='function')cloudPush(); }
+function resetBlank(){
+  if(!confirm('Clear ALL student/QC/commission data to a blank slate for real use? (Logins are kept. Backup first if unsure.)'))return;
+  DB.students=[];DB.qcReviews=[];DB.commissions=[];DB.refusals=[];DB.meta.demo=false;
+  DB.audit=[{id:'a0',actor:CUR.name,action:'Cleared to blank',detail:'Ready for real data',ts:Date.now()}];
+  save(); render();
+}
+function logAudit(action,detail){ DB.audit.unshift({id:'a'+Date.now(),actor:CUR.name+' ('+ROLES[CUR.role].label+')',action,detail,ts:Date.now()}); }
+
+/* ---------- AUTH ---------- */
+function renderDemoChips(){
+  document.getElementById('demoChips').innerHTML=DB.users.map(u=>`<span class="dchip" onclick="fillLogin('${u.u}','${u.p}')">${u.u} / ${u.p}</span>`).join('');
+}
+function fillLogin(u,p){ document.getElementById('luser').value=u; document.getElementById('lpass').value=p; }
+function doLogin(){
+  const u=(document.getElementById('luser').value||'').trim(), p=document.getElementById('lpass').value||'';
+  const user=DB.users.find(x=>x.u.toLowerCase()===u.toLowerCase()&&x.p===p&&x.active!==false);
+  if(!user){ document.getElementById('lerr').textContent='Wrong ID or password.'; return; }
+  SESSION={u:user.u,role:user.role,personId:user.personId};
+  try{localStorage.setItem(SESS_KEY,JSON.stringify(SESSION));}catch(e){}
+  enterApp();
+}
+function enterApp(){
+  setActive(SESSION.role,SESSION.personId);
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  // role-preview switcher only for MD
+  const rb=document.getElementById('roleboxWrap');
+  if(SESSION.role==='md'){ rb.classList.remove('hidden');
+    const sel=document.getElementById('roleSel'); sel.innerHTML=Object.values(ROLES).map(r=>`<option value="${r.id}">${r.label}</option>`).join(''); sel.value=CUR.role;
+  } else rb.classList.add('hidden');
+  render();
+}
+function setActive(role,personId){
+  const pid=personId||(DB.users.find(u=>u.role===role)||{}).personId;
+  const p=DB.people.find(x=>x.id===pid)||DB.ambassadors.find(x=>x.id===pid)||{};
+  CUR={role,person:pid,name:p.name||ROLES[role].label};
+  TAB = role==='ambassador'?'amb_leads':'deck';
+}
+function previewRole(r){ setActive(r); document.getElementById('roleSel').value=r; render(); }
+function logout(){ if(typeof cloudSignOut==='function')cloudSignOut(); try{localStorage.removeItem(SESS_KEY);}catch(e){} SESSION=null;CUR=null;
+  document.getElementById('app').classList.add('hidden'); document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('luser').value='';document.getElementById('lpass').value='';document.getElementById('lerr').textContent='';
+}
+
+/* ---------- UTIL ---------- */
+const fmt=n=>n==null?'0':Math.round(n).toLocaleString('en-IN');
+const usd=v=>'$'+fmt(v);
+function money(v){ return canSeeRevenue()? '$'+fmt(v) : '<span class="mask">•••</span>'; }
+function ago(ts){ if(!ts)return '—'; const d=Date.now()-ts,h=d/3600e3;
+  if(h<1)return Math.round(d/60e3)+'m ago'; if(h<24)return Math.round(h)+'h ago'; return Math.round(h/24)+'d ago';}
+function due(ts){ if(ts==null)return '<span class="tiny">—</span>'; const d=ts-Date.now(),h=d/3600e3;
+  if(d<0)return '<span style="color:var(--red);font-weight:800">overdue '+Math.round(-h/24*10)/10+'d</span>';
+  if(h<24)return '<span style="color:var(--amber);font-weight:800">in '+Math.round(h)+'h</span>'; return 'in '+Math.round(h/24)+'d';}
+const stageName=id=>(DB.config.stages.find(s=>s.id===id)||{name:id}).name;
+const personName=id=>(DB.people.find(p=>p.id===id)||{}).name||(id==null?'<span class="pill gray">Unassigned</span>':id);
+const pillClass=stage=>({lead:'lead',qualified:'qual',application:'app',qc_app:'qc',submitted:'app',offer:'offer',deposit:'deposit',visa_prep:'visa',qc_visa:'qc',visa_submit:'visa',enrolled:'enrolled',dropped:'dropped'}[stage]||'gray');
+const srcLabel=s=>({ambassador:'Ambassador',facebook:'Facebook',walkin:'Walk-in',referral:'Referral',website:'Website',seminar:'Seminar'}[s.source]||s.source);
+function pf(id){const e=document.getElementById(id);return e?e.value:'';}
+
+/* ---------- VISIBILITY ---------- */
+function visibleStudents(){
+  const all=DB.students;
+  switch(CUR.role){
+    case 'md': case 'head': case 'qc': return all;
+    case 'tl': return all.filter(s=>['u_tl','u_gc','u_jr'].includes(s.counselorId)||s.counselorId==null);
+    case 'counselor': return all.filter(s=>s.counselorId===CUR.person);
+    case 'reception': return all;
+    case 'ambassador': return all.filter(s=>s.ambassadorId===CUR.person);
+    default: return [];
+  }
+}
+function unassigned(){ return DB.students.filter(s=>s.stage!=='dropped'&&s.counselorId==null); }
+function qcQueue(){ return DB.students.filter(s=>s.stage==='qc_app'||s.stage==='qc_visa'); }
+function activeStudents(){ return DB.students.filter(s=>!['enrolled','dropped'].includes(s.stage)); }
+
+/* ---------- REVENUE (USD $1000 / enrollment, recognized on commission receipt) ---------- */
+function revSum(){
+  let expected=0,committed=0,receivable=0,realized=0,atRisk=0,lost=0;
+  DB.students.forEach(s=>{ const r=s.revenue, U=r.usd||PER_ENROLL_USD;
+    switch(r.state){
+      case 'expected': expected+=U*(r.prob||.3); break;
+      case 'committed': committed+=U; break;
+      case 'receivable':
+        if(r.commissionDueBy&&r.commissionDueBy<Date.now()) atRisk+=U; else receivable+=U; break;
+      case 'realized': realized+=U; break;
+      case 'lost': lost+=U*(r.prob||.3); break;
+    }
+    if(s.stage==='deposit'&&(Date.now()-s.lastUpdate)/3600e3>72) atRisk+=U*(r.prob||.5);
+  });
+  return {expected,committed,receivable,realized,atRisk,lost};
+}
+function funnelCounts(){
+  const order=['lead','qualified','application','offer','deposit','visa_submit','enrolled'];
+  const labels={lead:'Lead',qualified:'Qualified',application:'Application',offer:'Offer',deposit:'Deposit',visa_submit:'Visa',enrolled:'Enrolled'};
+  const counts={};
+  order.forEach(id=>{ const idx=DB.config.stages.findIndex(s=>s.id===id);
+    counts[id]=DB.students.filter(s=>{ if(s.stage==='dropped')return false; const si=DB.config.stages.findIndex(x=>x.id===s.stage); return si>=idx;}).length;});
+  return {order,labels,counts};
+}
+function computeAlerts(){
+  const out=[],now=Date.now();
+  unassigned().forEach(s=>{const age=(now-s.createdAt)/3600e3; if(age>24)out.push({sev:'red',txt:`<b>${s.name}</b> — lead unassigned ${Math.round(age)}h (24h SLA breached)`,tab:'intake'});});
+  qcQueue().forEach(s=>out.push({sev:'amber',txt:`<b>${s.name}</b> — ${stageName(s.stage)} awaiting QC`,tab:'qc'}));
+  DB.students.forEach(s=>{ if(s.stage==='deposit'&&(now-s.lastUpdate)/3600e3>72)out.push({sev:'red',txt:`<b>${s.name}</b> — tuition deposit pending ${Math.round((now-s.lastUpdate)/864e5)}d`,tab:'pipeline'});
+    if(s.revenue.state==='receivable'&&s.revenue.commissionDueBy&&s.revenue.commissionDueBy<now)out.push({sev:'red',txt:`<b>${s.name}</b> — university commission overdue (>6 months)`,tab:'pipeline'});
+    if(s.nextDeadline&&s.nextDeadline<now&&!['enrolled','dropped'].includes(s.stage))out.push({sev:'red',txt:`<b>${s.name}</b> — ${s.nextLabel} overdue`,tab:'pipeline'});});
+  DB.students.filter(s=>s.stage==='dropped').forEach(s=>out.push({sev:'blue',txt:`<b>${s.name}</b> — lost lead, route to recovery`,tab:'pipeline'}));
+  return out;
+}
+
+/* ============================================================ NAV ============================================================ */
+const NAV=[
+  {sec:'Cockpit'},
+  {id:'deck',ic:'◈',label:'Command Deck',roles:['md','head','tl','counselor','reception','qc']},
+  {id:'intake',ic:'⊕',label:'Intake & Assign',roles:['md','head','reception'],badge:()=>unassigned().length},
+  {id:'pipeline',ic:'≣',label:'Pipeline Board',roles:['md','head','tl','counselor']},
+  {sec:'Quality & Revenue'},
+  {id:'qc',ic:'✓',label:'QC Center',roles:['md','head','qc'],badge:()=>qcQueue().length},
+  {id:'revenue',ic:'$',label:'Revenue & Leaks',roles:['md']},
+  {id:'kpi',ic:'▲',label:'KPI Scorecard',roles:['md','head']},
+  {sec:'People'},
+  {id:'team',ic:'☷',label:'Team & Performance',roles:['md','head','tl']},
+  {id:'commission',ic:'◆',label:'Commission',roles:['md','head','tl','counselor']},
+  {sec:'Ambassador'},
+  {id:'amb_submit',ic:'✎',label:'Submit a Lead',roles:['ambassador']},
+  {id:'amb_leads',ic:'◉',label:'My Leads',roles:['ambassador']},
+  {id:'amb_comm',ic:'◆',label:'My Commission',roles:['ambassador']},
+  {id:'amb_team',ic:'☷',label:'My Campus Team',roles:['ambassador']},
+  {sec:'System'},
+  {id:'amb_admin',ic:'◉',label:'Ambassador Oversight',roles:['md','head']},
+  {id:'access',ic:'⚿',label:'Access Management',roles:['md']},
+  {id:'integrations',ic:'⇄',label:'Integrations',roles:['md','head']},
+  {id:'audit',ic:'❖',label:'Audit Log',roles:['md','head']},
+  {id:'settings',ic:'⚙',label:'Settings',roles:['md','head']}
+];
+function renderSide(){
+  let h=`<div class="whoami"><div class="r">${CUR.name}</div><div class="d">${ROLES[CUR.role].label}<br>${ROLES[CUR.role].desc}</div></div>`;
+  NAV.forEach(n=>{ if(n.sec){h+=`<div class="navsec">${n.sec}</div>`;return;} if(!n.roles.includes(CUR.role))return;
+    const b=n.badge?n.badge():0; const bcls=n.id==='qc'?'badge amber':'badge';
+    h+=`<button class="nav ${TAB===n.id?'on':''}" onclick="go('${n.id}')"><span class="ic">${n.ic}</span> ${n.label}${b>0?`<span class="${bcls}">${b}</span>`:''}</button>`;});
+  document.getElementById('side').innerHTML=h;
+}
+function go(t){ TAB=t; render(); }
+
+/* ============================================================ RENDER ============================================================ */
+function render(){
+  // topbar user chip
+  document.getElementById('uname').textContent=CUR.name;
+  document.getElementById('urole').textContent=ROLES[CUR.role].label;
+  document.getElementById('uav').textContent=(CUR.name||'U').replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()||'U';
+  renderSide();
+  const nav=NAV.find(n=>n.id===TAB);
+  if(nav&&!nav.roles.includes(CUR.role)) TAB=CUR.role==='ambassador'?'amb_leads':'deck';
+  let body='';
+  if(DB.meta.demo) body+=`<div class="demobar">⚠ <b>Demo seed data</b> — sample records so you can feel the cockpit. <b>Settings → Clear to Blank</b> before real students.</div>`;
+  const views={deck:viewDeck,intake:viewIntake,pipeline:viewPipeline,qc:viewQC,revenue:viewRevenue,kpi:viewKPI,team:viewTeam,
+    commission:viewCommission,amb_submit:viewAmbSubmit,amb_leads:viewAmbLeads,amb_comm:viewAmbComm,amb_team:viewAmbTeam,
+    amb_admin:viewAmbAdmin,access:viewAccess,integrations:viewIntegrations,audit:viewAudit,settings:viewSettings};
+  body+=(views[TAB]||viewDeck)();
+  document.getElementById('main').innerHTML=body;
+  animateCounters();
+}
+function animateCounters(){
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target=+el.getAttribute('data-count'),dur=750,start=performance.now();
+    const pre=el.getAttribute('data-pre')||'',suf=el.getAttribute('data-suf')||'';
+    function tick(t){const p=Math.min((t-start)/dur,1);const e=.5-Math.cos(p*Math.PI)/2;
+      el.textContent=pre+Math.round(target*e).toLocaleString('en-IN')+suf; if(p<1)requestAnimationFrame(tick);}
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ---------- COMMAND DECK ---------- */
+function viewDeck(){
+  const alerts=computeAlerts();
+  let h=`<div class="pagehead"><div><h1>Command Deck</h1>
+    <div class="sub">${CUR.name} · ${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div></div>
+    ${canAddLead()?`<button class="tbtn gold" onclick="addLeadModal()">⊕ New Lead</button>`:''}</div>`;
+  if(canSeeRevenue()){
+    const r=revSum();
+    h+=`<div class="revstrip">
+      <div class="revcard exp"><div class="lab">Expected</div><div class="val" data-count="${Math.round(r.expected)}" data-pre="$">$0</div><div class="sub">weighted pipeline</div></div>
+      <div class="revcard comm"><div class="lab">Committed</div><div class="val" data-count="${Math.round(r.committed)}" data-pre="$">$0</div><div class="sub">enrolled, awaiting tuition</div></div>
+      <div class="revcard recv"><div class="lab">Receivable</div><div class="val" data-count="${Math.round(r.receivable)}" data-pre="$">$0</div><div class="sub">due ≤6mo from uni</div></div>
+      <div class="revcard real"><div class="lab">Realized</div><div class="val" data-count="${Math.round(r.realized)}" data-pre="$">$0</div><div class="sub">commission received</div></div>
+      <div class="revcard risk"><div class="lab">At-Risk</div><div class="val" data-count="${Math.round(r.atRisk)}" data-pre="$">$0</div><div class="sub">stuck / overdue</div></div>
+      <div class="revcard lost"><div class="lab">Lost</div><div class="val" data-count="${Math.round(r.lost)}" data-pre="$">$0</div><div class="sub">dropped</div></div></div>`;
+  } else {
+    const act=activeStudents().length,un=unassigned().length,qcq=qcQueue().length;
+    const enrolled=DB.students.filter(s=>s.stage==='enrolled').length,leads=DB.students.length,conv=leads?Math.round(enrolled/leads*100):0;
+    h+=`<div class="mstrip">
+      <div class="mcard"><div class="lab">Active Students</div><div class="val" data-count="${act}">0</div><div class="tr up">in pipeline</div></div>
+      <div class="mcard"><div class="lab">Unassigned Leads</div><div class="val" data-count="${un}">0</div><div class="tr ${un>0?'down':'up'}">${un>0?'route now':'clear'}</div></div>
+      <div class="mcard"><div class="lab">Awaiting QC</div><div class="val" data-count="${qcq}">0</div><div class="tr ${qcq>0?'down':'up'}">your gate</div></div>
+      <div class="mcard"><div class="lab">Conversion</div><div class="val" data-count="${conv}" data-suf="%">0%</div><div class="tr up">lead→enrolled</div></div>
+      <div class="mcard"><div class="lab">Revenue</div><div class="val"><span class="mask">•••</span></div><div class="tr">MD-only</div></div></div>`;
+  }
+  h+=`<div class="cols"><div>`;
+  h+=`<div class="panel"><h3><span class="ic">🚨</span> Urgent Action Center <span class="tag">${alerts.length} items</span></h3>`;
+  if(alerts.length===0)h+=`<div class="tiny" style="padding:10px 0">Nothing on fire. Pipeline is clean. ✓</div>`;
+  alerts.slice(0,8).forEach(a=>h+=`<div class="alert"><span class="dot ${a.sev}"></span><div class="txt">${a.txt}</div><button class="act" onclick="go('${a.tab}')">Open →</button></div>`);
+  h+=`</div>`;
+  if(['md','head','tl'].includes(CUR.role))h+=leaderboardPanel();
+  h+=`</div><div>`+funnelPanel()+heatmapPanel()+qcHealthPanel()+`</div></div>`;
+  return h;
+}
+function funnelPanel(){
+  const {order,labels,counts}=funnelCounts(),max=Math.max(...Object.values(counts),1);
+  let h=`<div class="panel"><h3><span class="ic">≣</span> Student Pipeline</h3><div class="funnel" style="margin-top:10px">`;
+  order.forEach(id=>{const c=counts[id],w=Math.round(c/max*100);
+    h+=`<div class="fstage"><div class="nm">${labels[id]}</div><div class="fbar"><div class="fill" style="width:${Math.max(w,6)}%">${c}</div></div></div>`;});
+  return h+`</div></div>`;
+}
+function heatmapPanel(){
+  const c=funnelCounts().counts,rate=(a,b)=>c[a]&&c[b]?Math.round(c[b]/c[a]*100):0;
+  const cells=[['Lead → Qualified',rate('lead','qualified')],['Qualified → Application',rate('qualified','application')],
+    ['Application → Offer',rate('application','offer')],['Offer → Deposit',rate('offer','deposit')],
+    ['Deposit → Visa',rate('deposit','visa_submit')],['Visa → Enrolled',rate('visa_submit','enrolled')]];
+  let h=`<div class="panel"><h3><span class="ic">🔥</span> Journey Heatmap <span class="tag">where we leak</span></h3><div class="heat" style="margin-top:10px">`;
+  cells.forEach(([l,v])=>{const cls=v>=70?'good':v>=45?'warn':'bad',leak=v<45&&v>0?'leak':'';
+    h+=`<div class="hcell ${cls} ${leak}"><div class="hl">${l}</div><div class="hv">${v}%</div></div>`;});
+  return h+`</div></div>`;
+}
+function qcHealthPanel(){
+  const pend=qcQueue().length,pass=DB.qcReviews.filter(r=>r.result==='pass').length,fail=DB.qcReviews.filter(r=>r.result==='fail').length,risk=DB.students.filter(s=>s.stage==='dropped').length;
+  return `<div class="panel"><h3><span class="ic">🛡️</span> QC Health</h3>
+    <div class="mstrip" style="margin:10px 0 0;grid-template-columns:repeat(4,1fr)">
+      <div class="mcard"><div class="lab">Pending</div><div class="val" style="color:var(--amber)" data-count="${pend}">0</div></div>
+      <div class="mcard"><div class="lab">Approved</div><div class="val" style="color:var(--green)" data-count="${pass}">0</div></div>
+      <div class="mcard"><div class="lab">Failed</div><div class="val" style="color:var(--red)" data-count="${fail}">0</div></div>
+      <div class="mcard"><div class="lab">High-risk</div><div class="val" data-count="${risk}">0</div></div></div>
+    ${canRunQC()?`<div style="margin-top:12px"><button class="btn primary" onclick="go('qc')">Open QC queue →</button></div>`:''}</div>`;
+}
+function leaderboardPanel(){
+  const rows=DB.people.filter(p=>['tl','counselor','reception'].includes(p.role)).map(c=>{
+    const mine=DB.students.filter(s=>s.counselorId===c.id),enr=mine.filter(s=>s.stage==='enrolled').length;
+    const conv=mine.length?Math.round(enr/mine.length*100):0;
+    const qcr=DB.qcReviews.filter(r=>{const s=DB.students.find(x=>x.id===r.studentId);return s&&s.counselorId===c.id;});
+    const fp=qcr.length?Math.round(qcr.filter(r=>r.firstTimePass).length/qcr.length*100):100;
+    return {c,active:mine.filter(s=>!['enrolled','dropped'].includes(s.stage)).length,conv,enr,qc:Math.max(Math.round(fp/20),1)};
+  }).sort((a,b)=>b.conv-a.conv);
+  let h=`<div class="panel"><h3><span class="ic">☷</span> Counselor Performance <span class="tag">${canSeeRevenue()?'revenue visible':'revenue hidden'}</span></h3>`;
+  rows.forEach((r,i)=>h+=`<div class="lb"><div class="rank ${i===0?'r1':''}">${i+1}</div>
+    <div class="who"><div class="n">${r.c.name}</div><div class="role">${r.c.title}</div></div>
+    <div class="stat"><div class="v" style="color:var(--accent2)">${r.active}</div><div class="l">Active</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">${r.conv}%</div><div class="l">Conv</div></div>
+    <div class="stat"><div class="v stars">${'★'.repeat(r.qc)}</div><div class="l">QC</div></div>
+    ${canSeeRevenue()?`<div class="stat"><div class="v" style="color:var(--gold)">${money(r.enr*PER_ENROLL_USD)}</div><div class="l">Rev</div></div>`:''}</div>`);
+  return h+`</div>`;
+}
+
+/* ---------- INTAKE & ASSIGN ---------- */
+function viewIntake(){
+  const un=unassigned();
+  let h=`<div class="pagehead"><div><h1>Intake & Assign</h1>
+    <div class="sub">All leads land here. ${canAssignLeads()?'<b style="color:var(--accent2)">You decide which lead goes to which counselor.</b>':'View only — assignment is the Head of Ops & QC’s call.'}</div></div>
+    ${canAddLead()?`<button class="tbtn gold" onclick="addLeadModal()">⊕ New Lead</button>`:''}</div>`;
+  if(un.length===0)return h+`<div class="panel"><div class="tiny" style="padding:20px;text-align:center">No unassigned leads. The funnel is clean. ✓</div></div>`;
+  h+=`<div class="panel"><table><thead><tr><th>Lead</th><th>Source</th><th>Country</th><th>Age / SLA</th><th>Status</th>${canAssignLeads()?'<th>Assign to</th>':''}</tr></thead><tbody>`;
+  un.forEach(s=>{const age=(Date.now()-s.createdAt)/3600e3,breach=age>24;
+    h+=`<tr><td onclick="studentModal('${s.id}')"><b>${s.name}</b></td><td>${srcChip(s)}</td><td>${s.country}</td>
+      <td>${breach?`<span style="color:var(--red);font-weight:800">${Math.round(age)}h · BREACHED</span>`:`<span style="color:var(--amber)">${Math.round(age)}h</span>`}</td>
+      <td><span class="pill lead">Unassigned</span></td>
+      ${canAssignLeads()?`<td><select onclick="event.stopPropagation()" onchange="assignLead('${s.id}',this.value)" title="Assign counselor">
+        <option value="">— pick counselor —</option>${DB.people.filter(p=>['tl','counselor','reception'].includes(p.role)).map(p=>`<option value="${p.id}">${p.name} · ${p.title}</option>`).join('')}</select></td>`:''}</tr>`;});
+  return h+`</tbody></table></div>`;
+}
+function srcChip(s){let t=srcLabel(s); if(s.source==='ambassador'&&s.ambassadorId){const a=DB.ambassadors.find(x=>x.id===s.ambassadorId);if(a)t+=' · '+a.name.replace(' (demo)','');} return `<span class="chip">${t}</span>`;}
+function assignLead(id,counselorId){ if(!counselorId)return; const s=DB.students.find(x=>x.id===id),c=DB.people.find(p=>p.id===counselorId);
+  s.counselorId=counselorId;s.owner=counselorId;s.stage=s.stage==='lead'?'qualified':s.stage;s.lastUpdate=Date.now();
+  s.nextLabel='Begin counseling';s.nextAction='Counsel & profile';s.history.unshift({ts:Date.now(),who:CUR.name,note:`Assigned to ${c.name}`});
+  logAudit('Assigned lead',`${s.name} → ${c.name}`);save();render();}
+
+/* ---------- PIPELINE ---------- */
+function viewPipeline(){
+  const studs=visibleStudents().filter(s=>s.counselorId!=null||['head','md'].includes(CUR.role));
+  let h=`<div class="pagehead"><div><h1>Pipeline Board</h1><div class="sub">${CUR.role==='counselor'?'Your students only':CUR.role==='tl'?'Your pod':'All students'} · ${studs.length} records</div></div></div>`;
+  h+=`<div class="filters">
+    <select id="fStage" onchange="render()" title="Filter stage"><option value="">All stages</option>${DB.config.stages.map(s=>`<option ${pf('fStage')===s.id?'selected':''} value="${s.id}">${s.name}</option>`).join('')}<option value="dropped" ${pf('fStage')==='dropped'?'selected':''}>Dropped</option></select>
+    <select id="fCountry" onchange="render()" title="Filter country"><option value="">All countries</option>${DB.config.countries.map(c=>`<option ${pf('fCountry')===c?'selected':''} value="${c}">${c}</option>`).join('')}</select>
+    <input id="fSearch" placeholder="Search name… (Enter)" value="${pf('fSearch')}" onchange="render()"></div>`;
+  let rows=studs; const fs=pf('fStage'),fc=pf('fCountry'),fq=pf('fSearch').toLowerCase();
+  if(fs)rows=rows.filter(s=>s.stage===fs); if(fc)rows=rows.filter(s=>s.country===fc); if(fq)rows=rows.filter(s=>s.name.toLowerCase().includes(fq));
+  rows.sort((a,b)=>b.lastUpdate-a.lastUpdate);
+  h+=`<div class="panel"><table><thead><tr><th>Student</th><th>Country</th><th>Stage</th><th>Owner</th><th>Next Action</th><th>Deadline</th>${canSeeRevenue()?'<th>Value</th>':''}</tr></thead><tbody>`;
+  rows.forEach(s=>h+=`<tr onclick="studentModal('${s.id}')"><td><b>${s.name}</b><div class="tiny">${srcLabel(s)}</div></td>
+    <td>${s.country}</td><td><span class="pill ${pillClass(s.stage)}">${stageName(s.stage)}</span></td><td>${personName(s.counselorId)}</td>
+    <td>${s.nextLabel||'—'}</td><td>${due(s.nextDeadline)}</td>${canSeeRevenue()?`<td>${money(PER_ENROLL_USD)}</td>`:''}</tr>`);
+  if(rows.length===0)h+=`<tr><td colspan="7" class="tiny" style="text-align:center;padding:20px">No matching students.</td></tr>`;
+  return h+`</tbody></table></div>`;
+}
+
+/* ---------- QC CENTER ---------- */
+function viewQC(){
+  const q=qcQueue();
+  let h=`<div class="pagehead"><div><h1>QC Center</h1><div class="sub">The two governance gates. Nothing moves forward without your sign-off.</div></div></div>`;
+  h+=`<div class="panel"><h3><span class="ic">✓</span> Review Queue <span class="tag">${q.length} files</span></h3>`;
+  if(q.length===0)h+=`<div class="tiny" style="padding:14px 0">Queue empty. All files cleared. ✓</div>`;
+  else{h+=`<table><thead><tr><th>Student</th><th>Gate</th><th>Country</th><th>Owner</th><th>Waiting</th><th></th></tr></thead><tbody>`;
+    q.forEach(s=>h+=`<tr><td><b>${s.name}</b></td><td><span class="pill qc">${s.stage==='qc_app'?'Gate 1 · Application':'Gate 2 · Visa'}</span></td>
+      <td>${s.country}</td><td>${personName(s.counselorId)}</td><td>${ago(s.lastUpdate)}</td>
+      <td>${canRunQC()?`<button class="btn primary" onclick="qcModal('${s.id}')">Review</button>`:'<span class="tiny">view only</span>'}</td></tr>`);
+    h+=`</tbody></table>`;}
+  h+=`</div>`;
+  const fp=DB.qcReviews.length?Math.round(DB.qcReviews.filter(r=>r.firstTimePass).length/DB.qcReviews.length*100):0;
+  h+=`<div class="panel"><h3><span class="ic">▲</span> QC & Visa Intelligence</h3><div class="mstrip" style="margin-top:10px">
+    <div class="mcard"><div class="lab">First-time Pass</div><div class="val" style="color:var(--green)" data-count="${fp}" data-suf="%">0%</div></div>
+    <div class="mcard"><div class="lab">Reviews logged</div><div class="val" data-count="${DB.qcReviews.length}">0</div></div>
+    <div class="mcard"><div class="lab">Refusals</div><div class="val" data-count="${DB.refusals.length}">0</div></div>
+    <div class="mcard"><div class="lab">In visa stage</div><div class="val" data-count="${DB.students.filter(s=>['enrolled','visa_submit'].includes(s.stage)).length}">0</div></div></div>
+    <div class="note-s">Refusal-reason taxonomy auto-builds as files are decided — patterns feed next week’s training topic.</div></div>`;
+  return h;
+}
+function qcModal(id){
+  const s=DB.students.find(x=>x.id===id),gate=s.stage==='qc_app'?'app':'visa',list=gate==='app'?DB.config.qcApp:DB.config.qcVisa;
+  openModal(`QC ${gate==='app'?'Gate 1 · Application':'Gate 2 · Visa'} — ${s.name}`,
+    `<div class="frow"><label>Checklist (${s.country})</label>${list.map((c,i)=>`<div class="qcitem"><input type="checkbox" id="qc_${i}" checked title="${c}"><span>${c}</span></div>`).join('')}</div>
+     <div class="frow"><label>Structured feedback to counselor</label><textarea id="qcFb" placeholder="What’s strong, what must be fixed…"></textarea></div>`,
+    [{label:'✗ Fail & return',cls:'danger',fn:()=>qcDecide(id,'fail')},{label:'✓ Pass — advance',cls:'primary',fn:()=>qcDecide(id,'pass')}]);
+}
+function qcDecide(id,result){
+  const s=DB.students.find(x=>x.id===id),gate=s.stage==='qc_app'?'app':'visa',fb=(document.getElementById('qcFb')||{}).value||'';
+  const prior=DB.qcReviews.some(r=>r.studentId===id&&r.gate===gate);
+  DB.qcReviews.unshift({id:'qc'+Date.now(),studentId:id,gate,result,firstTimePass:result==='pass'&&!prior,reviewer:CUR.person,ts:Date.now(),feedback:fb});
+  if(result==='pass'){s.stage=gate==='app'?'submitted':'visa_submit';s.nextLabel=gate==='app'?'Submit to university':'Track visa decision';s.history.unshift({ts:Date.now(),who:CUR.name,note:`QC ${gate} PASSED`+(fb?` · ${fb}`:'')});}
+  else{s.stage=gate==='app'?'application':'visa_prep';s.nextLabel='Fix QC issues & resubmit';s.history.unshift({ts:Date.now(),who:CUR.name,note:`QC ${gate} FAILED · ${fb}`});}
+  s.lastUpdate=Date.now();logAudit('QC decision',`${s.name} · gate ${gate} · ${result.toUpperCase()}`);save();closeModal();render();
+}
+
+/* ---------- REVENUE (MD only) ---------- */
+function viewRevenue(){
+  if(!canSeeRevenue())return lockView('Revenue is visible to the MD / CEO only.');
+  const r=revSum();
+  let h=`<div class="pagehead"><div><h1>Revenue & Leak Center</h1><div class="sub">Owner-only · $${PER_ENROLL_USD} per enrollment, recognized when the university pays our commission (≤6 months after tuition).</div></div></div>`;
+  h+=`<div class="revstrip">
+    <div class="revcard exp"><div class="lab">Expected</div><div class="val" data-count="${Math.round(r.expected)}" data-pre="$">$0</div></div>
+    <div class="revcard comm"><div class="lab">Committed</div><div class="val" data-count="${Math.round(r.committed)}" data-pre="$">$0</div></div>
+    <div class="revcard recv"><div class="lab">Receivable</div><div class="val" data-count="${Math.round(r.receivable)}" data-pre="$">$0</div></div>
+    <div class="revcard real"><div class="lab">Realized</div><div class="val" data-count="${Math.round(r.realized)}" data-pre="$">$0</div></div>
+    <div class="revcard risk"><div class="lab">At-Risk</div><div class="val" data-count="${Math.round(r.atRisk)}" data-pre="$">$0</div></div>
+    <div class="revcard lost"><div class="lab">Lost</div><div class="val" data-count="${Math.round(r.lost)}" data-pre="$">$0</div></div></div>`;
+  // recognition tracker
+  const recv=DB.students.filter(s=>s.revenue.state==='receivable');
+  h+=`<div class="panel"><h3><span class="ic">$</span> Commission Recognition Tracker <span class="tag">tuition paid → uni pays us ≤6mo</span></h3>
+    <table><thead><tr><th>Student</th><th>Country</th><th>Enrolled</th><th>Tuition paid</th><th>Commission due by</th><th>Amount</th></tr></thead><tbody>`;
+  recv.forEach(s=>h+=`<tr><td><b>${s.name}</b></td><td>${s.country}</td><td>${ago(s.revenue.enrolledAt)}</td><td>${ago(s.revenue.tuitionPaidAt)}</td><td>${due(s.revenue.commissionDueBy)}</td><td style="color:var(--gold);font-weight:800">${usd(PER_ENROLL_USD)}</td></tr>`);
+  if(recv.length===0)h+=`<tr><td colspan="6" class="tiny" style="padding:14px">No commissions in the recognition window yet.</td></tr>`;
+  h+=`</tbody></table></div>`;
+  // by country & source
+  const byC={};DB.students.forEach(s=>{byC[s.country]=byC[s.country]||{n:0,enr:0};byC[s.country].n++;if(s.stage==='enrolled')byC[s.country].enr++;});
+  const byS={};DB.students.forEach(s=>{byS[s.source]=byS[s.source]||{n:0,enr:0};byS[s.source].n++;if(s.stage==='enrolled')byS[s.source].enr++;});
+  h+=`<div class="cols"><div class="panel"><h3><span class="ic">$</span> By Country</h3><table><thead><tr><th>Country</th><th>Students</th><th>Enrolled</th><th>Realized value</th></tr></thead><tbody>`;
+  Object.entries(byC).sort((a,b)=>b[1].enr-a[1].enr).forEach(([c,v])=>h+=`<tr><td><b>${c}</b></td><td>${v.n}</td><td>${v.enr}</td><td style="color:var(--green)">${usd(v.enr*PER_ENROLL_USD)}</td></tr>`);
+  h+=`</tbody></table></div><div class="panel"><h3><span class="ic">◉</span> Source ROI <span class="tag">enrollments, not leads</span></h3><table><thead><tr><th>Source</th><th>Leads</th><th>Enrolled</th><th>Value</th></tr></thead><tbody>`;
+  Object.entries(byS).sort((a,b)=>b[1].enr-a[1].enr).forEach(([s,v])=>h+=`<tr><td><b>${srcLabel({source:s})}</b></td><td>${v.n}</td><td>${v.enr}</td><td style="color:var(--green)">${usd(v.enr*PER_ENROLL_USD)}</td></tr>`);
+  h+=`</tbody></table></div></div>`;
+  const leaks=DB.students.filter(s=>s.stage==='dropped'||(s.stage==='deposit'&&(Date.now()-s.lastUpdate)/3600e3>72)||(s.revenue.state==='receivable'&&s.revenue.commissionDueBy<Date.now()));
+  h+=`<div class="panel"><h3><span class="ic">🚨</span> Revenue Leaks & Recovery <span class="tag">${leaks.length}</span></h3><table><thead><tr><th>Student</th><th>Issue</th><th>Value</th><th>Queue</th></tr></thead><tbody>`;
+  leaks.forEach(s=>{const issue=s.stage==='dropped'?'Dropped / went cold':s.stage==='deposit'?'Tuition deposit unpaid >3d':'Commission overdue >6mo';
+    h+=`<tr><td><b>${s.name}</b></td><td style="color:var(--red)">${issue}</td><td>${usd(PER_ENROLL_USD)}</td><td><span class="pill ${s.stage==='dropped'?'lead':'pending'}">${s.stage==='dropped'?'Revival queue':'Chase'}</span></td></tr>`;});
+  if(leaks.length===0)h+=`<tr><td colspan="4" class="tiny" style="padding:16px">No leaks detected. ✓</td></tr>`;
+  return h+`</tbody></table></div>`;
+}
+
+/* ---------- KPI ---------- */
+function viewKPI(){
+  const leads=DB.students.length,enr=DB.students.filter(s=>s.stage==='enrolled').length,conv=leads?Math.round(enr/leads*100):0;
+  const visaFiles=DB.students.filter(s=>['visa_submit','enrolled'].includes(s.stage)).length,visaApprove=visaFiles?Math.round(enr/visaFiles*100):0;
+  const fp=DB.qcReviews.length?Math.round(DB.qcReviews.filter(r=>r.firstTimePass).length/DB.qcReviews.length*100):0;
+  const kpis=[['Counselor Conversion',conv+'%','+15–20% in 90d',conv>=15],['Visa Approval (QC files)',visaApprove+'%','90%+',visaApprove>=90],
+    ['First-time QC Pass',fp+'%','rising trend',fp>=70],['Training Completion','—','80%+',null],
+    ['Doc Refusals',''+DB.refusals.length,'↓ QoQ',DB.refusals.length===0],['Student Satisfaction','—','maintain/improve',null]];
+  let h=`<div class="pagehead"><div><h1>KPI Scorecard</h1><div class="sub">The six metrics the MD reviews the Head of Ops & QC on — from the JD.</div></div></div><div class="mstrip">`;
+  kpis.forEach(([n,v,t,ok])=>h+=`<div class="mcard"><div class="lab">${n}</div><div class="val">${v}</div><div class="tr ${ok===true?'up':ok===false?'down':''}">${ok===null?'needs data input':'target: '+t}</div></div>`);
+  return h+`</div><div class="panel"><div class="note-s">Training % and CSAT need manual inputs (attendance + surveys). Conversion/visa/QC compute live from the pipeline.</div></div>`;
+}
+
+/* ---------- TEAM ---------- */
+function viewTeam(){
+  let h=`<div class="pagehead"><div><h1>Team & Performance</h1><div class="sub">Your three seats + QC. Scorecards, load, quality.</div></div></div>`+leaderboardPanel();
+  h+=`<div class="panel"><h3><span class="ic">☷</span> Roster</h3><table><thead><tr><th>Name</th><th>Role</th><th>Active load</th><th>Enrolled</th></tr></thead><tbody>`;
+  DB.people.filter(p=>['tl','counselor','reception','qc'].includes(p.role)).forEach(p=>{const mine=DB.students.filter(s=>s.counselorId===p.id);
+    h+=`<tr><td><b>${p.name}</b></td><td>${p.title}</td><td>${mine.filter(s=>!['enrolled','dropped'].includes(s.stage)).length}</td><td style="color:var(--green)">${mine.filter(s=>s.stage==='enrolled').length}</td></tr>`;});
+  return h+`</tbody></table></div>`;
+}
+
+/* ---------- COMMISSION (privacy) ---------- */
+function viewCommission(){
+  let h=`<div class="pagehead"><div><h1>Commission</h1><div class="sub">${canSeeAllCommission()?'MD view — every commission across the company.':'You see <b>only your own</b> commission. Peers’ rates are private.'}</div></div></div>`;
+  let rows=DB.commissions; if(!canSeeAllCommission())rows=rows.filter(c=>c.beneficiary===CUR.person);
+  h+=`<div class="panel"><table><thead><tr><th>Beneficiary</th><th>Student</th><th>Amount</th><th>Status</th><th>Vesting</th></tr></thead><tbody>`;
+  if(rows.length===0)h+=`<tr><td colspan="5" class="tiny" style="padding:18px;text-align:center">No commission records for you yet.</td></tr>`;
+  rows.forEach(c=>{const who=c.type==='campus'?(DB.ambassadors.flatMap(a=>a.campus).find(x=>x.id===c.beneficiary)||{}).name:(DB.people.find(p=>p.id===c.beneficiary)||DB.ambassadors.find(a=>a.id===c.beneficiary)||{}).name;
+    const stu=DB.students.find(s=>s.id===c.studentId),amt=c.amountUSD?usd(c.amountUSD):(c.status==='set-by-md'?'<span class="pill gray">set by MD</span>':'৳'+fmt(c.amountBDT||0));
+    h+=`<tr><td><b>${who||c.beneficiary}</b><div class="tiny">${c.type}</div></td><td>${stu?stu.name:'—'}</td><td style="color:var(--gold);font-weight:800">${amt}</td>
+      <td><span class="pill ${c.status==='paid'?'pass':c.status==='vesting'?'pending':'gray'}">${c.status}</span></td><td>${c.vestsAt?new Date(c.vestsAt).toLocaleDateString('en-GB'):c.note||'—'}</td></tr>`;});
+  h+=`</tbody></table>`;
+  if(CUR.role==='head')h+=`<div class="note-s">Per your rule: the Head of Ops & QC sees only their own commission. The MD sets all amounts from GPOS.</div>`;
+  return h+`</div>`;
+}
+
+/* ---------- AMBASSADOR ---------- */
+function viewAmbSubmit(){
+  return `<div class="pagehead"><div><h1>Submit a Lead</h1><div class="sub">Send a prospective student straight into the Head of Ops & QC intake queue.</div></div></div>
+    <div class="panel" style="max-width:560px"><div class="frow"><label>Student name</label><input id="alName" placeholder="Full name"></div>
+    <div class="grid2"><div class="frow"><label>Target country</label><select id="alCountry">${DB.config.countries.map(c=>`<option>${c}</option>`).join('')}</select></div>
+    <div class="frow"><label>From campus ambassador?</label><select id="alCampus"><option value="">— direct (me) —</option>${(DB.ambassadors.find(a=>a.id===CUR.person)||{campus:[]}).campus.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div></div>
+    <div class="frow"><label>Notes (optional)</label><textarea id="alNote" placeholder="Background, intake, English level…"></textarea></div>
+    <button class="btn primary" onclick="ambSubmitLead()">✎ Submit lead to Ops</button>
+    <div class="note-s">It appears instantly in the Head of Ops & QC <b>Intake & Assign</b> queue. You’ll then be able to track its status &amp; your commission under <b>My Leads</b>.</div></div>`;
+}
+function ambSubmitLead(){
+  const name=(document.getElementById('alName').value||'').trim(); if(!name){alert('Name required');return;}
+  const country=document.getElementById('alCountry').value,campusId=document.getElementById('alCampus').value||null,note=document.getElementById('alNote').value||'';
+  const now=Date.now();
+  const s=st('s'+now,name,'ambassador',CUR.person,campusId,country,'lead',null,now,now,'NEW LEAD — assign within 24h','Assign counselor',now+24*3600e3);
+  if(note)s.history.unshift({ts:now,who:CUR.name,note:'Ambassador note: '+note});
+  DB.students.unshift(s); logAudit('Ambassador submitted lead',name+' · '+country); save();
+  alert('Lead submitted to Ops ✓'); TAB='amb_leads'; render();
+}
+function viewAmbLeads(){
+  const mine=DB.students.filter(s=>s.ambassadorId===CUR.person);
+  let h=`<div class="pagehead"><div><h1>My Leads</h1><div class="sub">Transparency on every lead you sent — status only. Contact details stay with our counselors.</div></div>
+    <button class="tbtn gold" onclick="go('amb_submit')">✎ Submit a Lead</button></div>`;
+  h+=`<div class="panel"><table><thead><tr><th>Lead</th><th>Assigned Counselor</th><th>Stage</th><th>Last Update</th><th>Next Action</th><th>Commission</th></tr></thead><tbody>`;
+  if(mine.length===0)h+=`<tr><td colspan="6" class="tiny" style="padding:18px;text-align:center">No leads yet — submit your first one.</td></tr>`;
+  mine.forEach(s=>{const c=DB.commissions.find(x=>x.studentId===s.id&&x.beneficiary===CUR.person);
+    h+=`<tr><td><b>${s.name}</b></td><td>${s.counselorId?personName(s.counselorId):'<span class="pill gray">Being assigned</span>'}</td>
+      <td><span class="pill ${pillClass(s.stage)}">${stageName(s.stage)}</span></td><td>${ago(s.lastUpdate)}</td>
+      <td>${s.stage==='enrolled'?'Won ✓':s.stage==='dropped'?'Closed':s.nextLabel||'In progress'}</td>
+      <td>${c?`<span style="color:var(--gold);font-weight:800">${usd(c.amountUSD)}</span> <span class="pill ${c.status==='paid'?'pass':'pending'}">${c.status}</span>`:'<span class="tiny">on enroll</span>'}</td></tr>`;});
+  return h+`</tbody></table><div class="note-s">You see progress &amp; commission — not internal QC notes, counselor notes, student contacts, or other ambassadors’ leads.</div></div>`;
+}
+function viewAmbComm(){
+  const own=DB.commissions.filter(c=>c.beneficiary===CUR.person),amb=DB.ambassadors.find(a=>a.id===CUR.person),campusIds=(amb?amb.campus:[]).map(c=>c.id);
+  const team=DB.commissions.filter(c=>campusIds.includes(c.beneficiary)),tot=own.reduce((a,c)=>a+(c.amountUSD||0),0),teamTot=team.reduce((a,c)=>a+(c.amountUSD||0),0);
+  let h=`<div class="pagehead"><div><h1>My Commission</h1><div class="sub">Your earnings + your campus team’s — full transparency for your downline.</div></div></div>`;
+  h+=`<div class="mstrip"><div class="mcard"><div class="lab">My commission</div><div class="val" style="color:var(--gold)" data-count="${tot}" data-pre="$">$0</div></div>
+    <div class="mcard"><div class="lab">My team (campus)</div><div class="val" style="color:var(--accent2)" data-count="${teamTot}" data-pre="$">$0</div></div>
+    <div class="mcard"><div class="lab">Leads sent</div><div class="val" data-count="${DB.students.filter(s=>s.ambassadorId===CUR.person).length}">0</div></div></div>`;
+  h+=`<div class="panel"><h3>My commission detail</h3><table><thead><tr><th>Student</th><th>Amount</th><th>Status</th><th>Vests</th></tr></thead><tbody>`;
+  own.forEach(c=>{const s=DB.students.find(x=>x.id===c.studentId);h+=`<tr><td><b>${s?s.name:'—'}</b></td><td style="color:var(--gold);font-weight:800">${usd(c.amountUSD)}</td><td><span class="pill ${c.status==='paid'?'pass':'pending'}">${c.status}</span></td><td>${c.vestsAt?new Date(c.vestsAt).toLocaleDateString('en-GB'):'—'}</td></tr>`;});
+  if(own.length===0)h+=`<tr><td colspan="4" class="tiny" style="padding:14px;text-align:center">No commission yet.</td></tr>`;
+  return h+`</tbody></table></div>`;
+}
+function viewAmbTeam(){
+  const amb=DB.ambassadors.find(a=>a.id===CUR.person),campus=amb?amb.campus:[];
+  let h=`<div class="pagehead"><div><h1>My Campus Team</h1><div class="sub">Your campus ambassadors and their commissions — track your downline.</div></div></div>`;
+  h+=`<div class="panel"><table><thead><tr><th>Campus Ambassador</th><th>Leads</th><th>Commission</th></tr></thead><tbody>`;
+  if(campus.length===0)h+=`<tr><td colspan="3" class="tiny" style="padding:16px;text-align:center">No campus ambassadors onboarded yet.</td></tr>`;
+  campus.forEach(cp=>{const comm=DB.commissions.filter(c=>c.beneficiary===cp.id),leads=DB.students.filter(s=>s.campusId===cp.id).length;
+    h+=`<tr><td><b>${cp.name}</b></td><td>${leads}</td><td style="color:var(--gold);font-weight:800">$${comm.reduce((a,c)=>a+(c.amountUSD||0),0)}</td></tr>`;});
+  return h+`</tbody></table></div>`;
+}
+function viewAmbAdmin(){
+  let h=`<div class="pagehead"><div><h1>Ambassador Oversight</h1><div class="sub">Head/MD view of the ambassador network feeding the funnel.</div></div></div>`;
+  h+=`<div class="panel"><table><thead><tr><th>Ambassador</th><th>Region</th><th>Leads</th><th>Enrolled</th><th>Campus team</th></tr></thead><tbody>`;
+  DB.ambassadors.forEach(a=>{const leads=DB.students.filter(s=>s.ambassadorId===a.id);
+    h+=`<tr><td><b>${a.name}</b></td><td>${a.region}</td><td>${leads.length}</td><td style="color:var(--green)">${leads.filter(s=>s.stage==='enrolled').length}</td><td>${a.campus.length}</td></tr>`;});
+  return h+`</tbody></table></div>`;
+}
+
+/* ---------- ACCESS MANAGEMENT (MD only) ---------- */
+function viewAccess(){
+  if(!isAdmin())return lockView('Access Management is for the MD / CEO only.');
+  let h=`<div class="pagehead"><div><h1>Access Management</h1><div class="sub">Provision logins. Assign someone to a role → they sign in with these credentials.</div></div>
+    <button class="tbtn gold" onclick="userModal()">⊕ New Login</button></div>`;
+  h+=`<div class="panel"><table><thead><tr><th>User ID</th><th>Password</th><th>Role</th><th>Linked person</th><th>Status</th><th></th></tr></thead><tbody>`;
+  DB.users.forEach(u=>{const p=DB.people.find(x=>x.id===u.personId)||DB.ambassadors.find(x=>x.id===u.personId)||{};
+    h+=`<tr><td><b>${u.u}</b></td><td><span class="tiny">${'•'.repeat(Math.min((u.p||'').length,8))}</span></td><td><span class="pill gray">${ROLES[u.role]?ROLES[u.role].label:u.role}</span></td>
+      <td>${p.name||'—'}</td><td><span class="pill ${u.active!==false?'pass':'fail'}">${u.active!==false?'active':'disabled'}</span></td>
+      <td><button class="btn ghost" onclick="userModal('${u.u}')">Edit</button></td></tr>`;});
+  h+=`</tbody></table><div class="note-s">⚠ This is in-app access control for an offline file — convenient, but not bank-grade security (anyone with the file can read it). True secure per-user login needs the cloud phase. See <b>Integrations</b>.</div></div>`;
+  return h;
+}
+function userModal(uid){
+  const u=uid?DB.users.find(x=>x.u===uid):null;
+  const persons=[...DB.people,...DB.ambassadors];
+  openModal(uid?'Edit Login — '+uid:'New Login',
+    `<div class="grid2"><div class="frow"><label>User ID</label><input id="uuId" value="${u?u.u:''}" ${u?'readonly':''} placeholder="e.g. head2"></div>
+    <div class="frow"><label>Password</label><input id="uuPass" value="${u?u.p:''}" placeholder="set a password"></div></div>
+    <div class="grid2"><div class="frow"><label>Role</label><select id="uuRole">${Object.values(ROLES).map(r=>`<option value="${r.id}" ${u&&u.role===r.id?'selected':''}>${r.label}</option>`).join('')}</select></div>
+    <div class="frow"><label>Linked person</label><select id="uuPerson">${persons.map(p=>`<option value="${p.id}" ${u&&u.personId===p.id?'selected':''}>${p.name} ${p.title?'· '+p.title:''}</option>`).join('')}</select></div></div>
+    <div class="frow"><label>Status</label><select id="uuActive"><option value="1" ${!u||u.active!==false?'selected':''}>Active</option><option value="0" ${u&&u.active===false?'selected':''}>Disabled</option></select></div>`,
+    [uid?{label:'Delete login',cls:'danger',fn:()=>delUser(uid)}:{label:'Cancel',cls:'ghost',fn:closeModal},{label:'Save login',cls:'primary',fn:()=>saveUser(uid)}]);
+}
+function saveUser(uid){
+  const id=(document.getElementById('uuId').value||'').trim(),pass=document.getElementById('uuPass').value||'',role=document.getElementById('uuRole').value,
+    personId=document.getElementById('uuPerson').value,active=document.getElementById('uuActive').value==='1';
+  if(!id||!pass){alert('User ID and password required');return;}
+  if(uid){const u=DB.users.find(x=>x.u===uid);Object.assign(u,{p:pass,role,personId,active});logAudit('Updated login',uid);}
+  else{if(DB.users.some(x=>x.u.toLowerCase()===id.toLowerCase())){alert('That User ID already exists');return;}DB.users.push({u:id,p:pass,role,personId,active});logAudit('Created login',id+' · '+role);}
+  save();closeModal();render();
+}
+function delUser(uid){ if(!confirm('Delete login '+uid+'?'))return; DB.users=DB.users.filter(x=>x.u!==uid);logAudit('Deleted login',uid);save();closeModal();render(); }
+
+/* ---------- INTEGRATIONS ---------- */
+function viewIntegrations(){
+  let h=`<div class="pagehead"><div><h1>Integrations</h1><div class="sub">Connect this Command Center with GPOS and the Lead Ambassador portal.</div></div></div>`;
+  h+=`<div class="cols"><div class="panel"><h3><span class="ic">⇄</span> Lead Ambassador Portal → here</h3>
+    <p class="tiny" style="margin-bottom:10px">Import leads exported from the GPOS Lead Ambassador portal. Expected JSON: an array of <code>{name, country, source, ambassadorId, campusId, note}</code>.</p>
+    <button class="btn primary" onclick="document.getElementById('impLeads').click()">⬆ Import leads (JSON)</button>
+    <input type="file" id="impLeads" accept="application/json" class="hidden" onchange="importLeads(event)">
+    <div class="note-s">Each imported lead lands in your Unassigned queue, carrying its ambassador attribution for commission tracking.</div></div>
+    ${cloudPanel()}</div>`;
+  h+=`<div class="panel"><h3>Export for GPOS roll-up</h3><button class="btn ghost" onclick="backup()">⬇ Export full data (JSON)</button>
+    <div class="note-s">Feed this into the GPOS CEO command center for consolidated revenue/KPI/headcount roll-up.</div></div>`;
+  return h;
+}
+function importLeads(e){
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ try{ let arr=JSON.parse(r.result); if(!Array.isArray(arr))arr=arr.leads||[]; if(!Array.isArray(arr))throw 0;
+    let n=0; arr.forEach(L=>{ if(!L.name)return; const now=Date.now()+n;
+      const s=st('s'+now,L.name,L.source||'ambassador',L.ambassadorId||null,L.campusId||null,L.country||DB.config.countries[0],'lead',null,now,now,'Imported lead — assign','Assign counselor',now+24*3600e3);
+      if(L.note)s.history.unshift({ts:now,who:CUR.name,note:'Import note: '+L.note}); DB.students.unshift(s); n++; });
+    logAudit('Imported leads','from '+f.name+' · '+n+' leads'); save(); render(); alert('Imported '+n+' lead(s) ✓');
+  }catch(err){ alert('Invalid leads file. Expected a JSON array of {name,country,...}.'); } };
+  r.readAsText(f); e.target.value='';
+}
+
+/* ---------- AUDIT / SETTINGS ---------- */
+function viewAudit(){
+  let h=`<div class="pagehead"><div><h1>Audit Log</h1><div class="sub">Every status change, assignment, QC decision & login change — immutable.</div></div></div><div class="panel">`;
+  DB.audit.slice(0,120).forEach(a=>h+=`<div class="hist"><b>${new Date(a.ts).toLocaleString('en-GB')}</b> · ${a.actor} — <b style="color:#fff">${a.action}</b>: ${a.detail}</div>`);
+  if(DB.audit.length===0)h+=`<div class="tiny">No actions logged yet.</div>`;
+  return h+`</div>`;
+}
+function viewSettings(){
+  let h=`<div class="pagehead"><div><h1>Settings</h1><div class="sub">Config-driven — change these without a developer.</div></div></div>`;
+  h+=`<div class="cols"><div class="panel"><h3>Access Policy (your 5 rules)</h3>
+    <div class="secrow"><span class="ok">✓</span> Revenue visible to <b>MD/CEO only</b></div>
+    <div class="secrow"><span class="ok">✓</span> Each counselor sees <b>only their own</b> commission</div>
+    <div class="secrow"><span class="ok">✓</span> Ambassador sees own leads + own + campus-team commission</div>
+    <div class="secrow"><span class="ok">✓</span> All leads route to Head of Ops & QC; <b>only they assign</b></div>
+    <div class="secrow"><span class="ok">✓</span> Head of Ops & QC sees <b>only own</b> commission (MD sets amounts)</div></div>
+  <div class="panel"><h3>Revenue Model</h3>
+    <div class="kv"><span class="k">Commission / enrollment</span><span class="v">$${PER_ENROLL_USD} USD</span></div>
+    <div class="kv"><span class="k">Recognition</span><span class="v">when university pays us</span></div>
+    <div class="kv"><span class="k">Window</span><span class="v">≤6 months after tuition</span></div>
+    <div class="note-s">Realized revenue books only when the university’s commission lands — not at enrollment.</div></div></div>`;
+  h+=`<div class="panel"><h3>Countries</h3><div class="filters">${DB.config.countries.map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+    <h3 style="margin-top:14px">Pipeline stages</h3><div class="filters">${DB.config.stages.map(s=>`<span class="chip">${s.name}${s.gate?' 🔴':''}</span>`).join('')}</div></div>`;
+  h+=`<div class="panel"><h3>Data</h3><div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" onclick="backup()">⬇ Backup JSON</button>
+    <button class="btn ghost" onclick="document.getElementById('restoreFile').click()">⬆ Restore JSON</button>
+    <button class="btn danger" onclick="resetBlank()">⌫ Clear to Blank (real use)</button></div>
+    <div class="note-s">Offline-first: data lives in this browser (localStorage). Backup regularly; restore to move machines or into GPOS.</div></div>`;
+  return h;
+}
+function lockView(msg){ return `<div class="lockmsg"><div class="big">🔒</div><div>${msg}</div></div>`; }
+
+/* ---------- STUDENT MODAL ---------- */
+function studentModal(id){
+  const s=DB.students.find(x=>x.id===id); if(!s)return;
+  const canEdit=['md','head'].includes(CUR.role)||(CUR.role==='tl'&&['u_tl','u_gc','u_jr'].includes(s.counselorId))||(CUR.role==='counselor'&&s.counselorId===CUR.person);
+  const idx=DB.config.stages.findIndex(x=>x.id===s.stage),nextStage=DB.config.stages[idx+1],atGate=s.stage==='qc_app'||s.stage==='qc_visa';
+  let body=`<div class="grid2"><div>
+      <div class="kv"><span class="k">Country</span><span class="v">${s.country}</span></div>
+      <div class="kv"><span class="k">Source</span><span class="v">${srcLabel(s)}</span></div>
+      <div class="kv"><span class="k">Stage</span><span class="v"><span class="pill ${pillClass(s.stage)}">${stageName(s.stage)}</span></span></div>
+      <div class="kv"><span class="k">Owner</span><span class="v">${personName(s.counselorId)}</span></div></div>
+    <div><div class="kv"><span class="k">Created</span><span class="v">${ago(s.createdAt)}</span></div>
+      <div class="kv"><span class="k">Last update</span><span class="v">${ago(s.lastUpdate)}</span></div>
+      <div class="kv"><span class="k">Next action</span><span class="v">${s.nextLabel||'—'}</span></div>
+      ${canSeeRevenue()?`<div class="kv"><span class="k">Revenue state</span><span class="v" style="color:var(--gold)">${s.revenue.state} · ${usd(PER_ENROLL_USD)}</span></div>`:''}</div></div>`;
+  if(canAssignLeads()&&s.counselorId==null)
+    body+=`<div class="frow"><label>Assign to counselor (only you can do this)</label><select id="mAssign" title="Assign counselor"><option value="">— pick —</option>${DB.people.filter(p=>['tl','counselor','reception'].includes(p.role)).map(p=>`<option value="${p.id}">${p.name} · ${p.title}</option>`).join('')}</select></div>`;
+  body+=`<div class="frow"><label>History</label>${s.history.map(x=>`<div class="hist"><b>${ago(x.ts)}</b> · ${x.who}: ${x.note}</div>`).join('')}</div>`;
+  const btns=[];
+  if(canAssignLeads()&&s.counselorId==null)btns.push({label:'Assign',cls:'primary',fn:()=>{const v=document.getElementById('mAssign').value;if(v){assignLead(id,v);closeModal();}}});
+  if(atGate&&canRunQC())btns.push({label:'Open QC review',cls:'primary',fn:()=>{closeModal();qcModal(id);}});
+  if(!atGate&&nextStage&&!['enrolled','dropped'].includes(s.stage)&&canEdit&&s.counselorId!=null)btns.push({label:'Advance → '+nextStage.name,cls:'green',fn:()=>advance(id)});
+  if(s.stage==='enrolled'&&!s.revenue.tuitionPaidAt&&canEdit)btns.push({label:'Record tuition paid',cls:'gold',fn:()=>recordTuition(id)});
+  if(s.stage==='enrolled'&&s.revenue.tuitionPaidAt&&!s.revenue.realizedAt&&canEdit)btns.push({label:'Record commission received',cls:'green',fn:()=>recordCommission(id)});
+  if(!['dropped','enrolled'].includes(s.stage)&&canEdit)btns.push({label:'Mark dropped',cls:'danger',fn:()=>dropStudent(id)});
+  btns.push({label:'Close',cls:'ghost',fn:closeModal});
+  openModal(s.name,body,btns);
+}
+function advance(id){
+  const s=DB.students.find(x=>x.id===id),idx=DB.config.stages.findIndex(x=>x.id===s.stage),ns=DB.config.stages[idx+1]; if(!ns)return;
+  s.stage=ns.id;s.lastUpdate=Date.now();
+  if(ns.id==='enrolled'){s.revenue.state='committed';s.revenue.enrolledAt=Date.now();s.nextLabel='Record tuition payment';}
+  else s.nextLabel=ns.gate?'Awaiting QC':'Progress '+ns.name;
+  s.history.unshift({ts:Date.now(),who:CUR.name,note:'Advanced to '+ns.name});
+  logAudit('Stage advance',`${s.name} → ${ns.name}`);save();closeModal();render();
+}
+function recordTuition(id){const s=DB.students.find(x=>x.id===id);s.revenue.tuitionPaidAt=Date.now();s.revenue.commissionDueBy=Date.now()+COMMISSION_WINDOW_DAYS*864e5;s.revenue.state='receivable';s.nextLabel='Collect commission from university';s.lastUpdate=Date.now();s.history.unshift({ts:Date.now(),who:CUR.name,note:'Student paid tuition — commission receivable (≤6mo)'});logAudit('Tuition paid',s.name);save();closeModal();render();}
+function recordCommission(id){const s=DB.students.find(x=>x.id===id);s.revenue.realizedAt=Date.now();s.revenue.state='realized';s.nextLabel='Won — revenue realized';s.lastUpdate=Date.now();s.history.unshift({ts:Date.now(),who:CUR.name,note:'University paid our commission — revenue realized'});logAudit('Commission received',s.name+' · $'+PER_ENROLL_USD);save();closeModal();render();}
+function dropStudent(id){const s=DB.students.find(x=>x.id===id);s.stage='dropped';s.revenue.state='lost';s.lastUpdate=Date.now();s.history.unshift({ts:Date.now(),who:CUR.name,note:'Marked dropped'});logAudit('Dropped',s.name);save();closeModal();render();}
+
+/* ---------- ADD LEAD ---------- */
+function addLeadModal(){
+  openModal('New Lead',
+    `<div class="grid2"><div class="frow"><label>Student name</label><input id="nlName" placeholder="Full name"></div>
+    <div class="frow"><label>Country</label><select id="nlCountry">${DB.config.countries.map(c=>`<option>${c}</option>`).join('')}</select></div></div>
+    <div class="grid2"><div class="frow"><label>Source</label><select id="nlSource"><option value="walkin">Walk-in</option><option value="ambassador">Ambassador</option><option value="facebook">Facebook</option><option value="referral">Referral</option><option value="website">Website</option><option value="seminar">Seminar</option></select></div>
+    <div class="frow"><label>Ambassador (if any)</label><select id="nlAmb"><option value="">—</option>${DB.ambassadors.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select></div></div>
+    <div class="note-s">Lead enters the Unassigned queue. Only the Head of Ops & QC routes it to a counselor.</div>`,
+    [{label:'Create lead',cls:'primary',fn:createLead},{label:'Cancel',cls:'ghost',fn:closeModal}]);
+}
+function createLead(){
+  const name=(document.getElementById('nlName').value||'').trim(); if(!name){alert('Name required');return;}
+  const country=document.getElementById('nlCountry').value,source=document.getElementById('nlSource').value,amb=document.getElementById('nlAmb').value||null,now=Date.now();
+  DB.students.unshift(st('s'+now,name,source,amb,null,country,'lead',null,now,now,'Qualify & assign','Assign counselor',now+24*3600e3));
+  logAudit('New lead',name+' · '+source);save();closeModal();TAB='intake';render();
+}
+
+/* ---------- MODAL CORE ---------- */
+let MODAL_BTNS=[];
+function openModal(title,body,btns){ MODAL_BTNS=btns||[];
+  document.getElementById('modalRoot').innerHTML=`<div class="ovl" onclick="if(event.target===this)closeModal()"><div class="modal">
+    <div class="mhead"><h2>${title}</h2><button class="x" onclick="closeModal()" title="Close">×</button></div>
+    <div class="mbody">${body}</div><div class="mfoot">${MODAL_BTNS.map((b,i)=>`<button class="btn ${b.cls}" onclick="MODAL_BTNS[${i}].fn()">${b.label}</button>`).join('')}</div></div></div>`;
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+
+/* ---------- BACKUP / RESTORE ---------- */
+function backup(){ const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gpscos-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function restore(e){ const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.students)throw 0;DB=d;if(!DB.users)DB.users=seed().users;logAudit('Restored backup',f.name);save();render();alert('Restored ✓');}catch(err){alert('Invalid backup file.');}};
+  r.readAsText(f);e.target.value='';}
+
+/* ============================================================
+   SHARED CLOUD (Supabase) — same project as GPOS.
+   • scos_state      = this Command Center's live shared vault
+   • scos_profiles   = cloud login -> SCOS role (1st user = md)
+   • scos_leads_inbox= bridge: GPOS ambassador portal inserts a
+     lead here; this portal pulls it in live as an unassigned lead.
+   Cloud is OFF until the MD runs the SQL + enables it.
+   ============================================================ */
+const SB_URL_DEFAULT='https://bdfajtkdnnozvggpvbmf.supabase.co';
+const SB_KEY_DEFAULT='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkZmFqdGtkbm5venZnZ3B2Ym1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyOTcyMjksImV4cCI6MjA5Nzg3MzIyOX0.sdpl8NMrONbML9RcOPUzyTNP5ut8Q_VVfA_qOSjTa4o';
+let SB=null, CLOUD_USER=null, __pushT=null, __pulling=false;
+function cloudCfg(){ if(!DB.cloud)DB.cloud={url:SB_URL_DEFAULT,key:SB_KEY_DEFAULT,on:false}; return DB.cloud; }
+function cloudEnabled(){ const c=cloudCfg(); return !!c.on && /^https:\/\/.+\.supabase\.co\/?$/i.test((c.url||'').trim()) && (c.key||'').trim().length>20; }
+function cloudLoadSDK(){ return new Promise((res,rej)=>{ if(window.supabase&&window.supabase.createClient)return res(window.supabase);
+  const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload=()=>(window.supabase&&window.supabase.createClient)?res(window.supabase):rej(new Error('SDK failed to load'));
+  s.onerror=()=>rej(new Error('Cannot reach Supabase SDK — offline?')); document.head.appendChild(s); }); }
+async function cloudClient(){ if(SB)return SB; const lib=await cloudLoadSDK(); const c=cloudCfg();
+  SB=lib.createClient(c.url.trim().replace(/\/$/,''),c.key.trim(),{auth:{persistSession:true,autoRefreshToken:true}}); return SB; }
+async function cloudFetchRole(uid){ try{ const sb=await cloudClient(); const {data}=await sb.from('scos_profiles').select('role').eq('id',uid).maybeSingle(); return (data&&data.role)||'reception'; }catch(e){ return 'reception'; } }
+async function cloudPull(){ if(__pulling)return; __pulling=true; try{ const sb=await cloudClient();
+  const {data,error}=await sb.from('scos_state').select('data').eq('id','main').maybeSingle(); if(error)throw error;
+  if(!data||!data.data){ await cloudPushNow(); } else { DB=data.data; localStorage.setItem(LS_KEY,JSON.stringify(DB)); }
+  await cloudPullInbox(); if(CUR)render(); }catch(e){}finally{__pulling=false;} }
+async function cloudPushNow(){ if(!cloudEnabled()||!CLOUD_USER)return; try{ const sb=await cloudClient();
+  await sb.from('scos_state').upsert({id:'main',data:DB,updated_at:new Date().toISOString(),updated_by:CLOUD_USER.id}); }catch(e){} }
+function cloudPush(){ if(!cloudEnabled()||!CLOUD_USER)return; clearTimeout(__pushT); __pushT=setTimeout(cloudPushNow,1200); }
+function cloudSubscribe(){ if(!SB)return;
+  SB.channel('scos_state_rt').on('postgres_changes',{event:'*',schema:'public',table:'scos_state'},p=>{ if(__pulling)return; if(p.new&&p.new.data){ DB=p.new.data; localStorage.setItem(LS_KEY,JSON.stringify(DB)); if(CUR)render(); } }).subscribe();
+  SB.channel('scos_inbox_rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'scos_leads_inbox'},()=>{ cloudPullInbox().then(()=>{ if(CUR)render(); }); }).subscribe(); }
+async function cloudPullInbox(){ try{ const sb=await cloudClient();
+  const {data,error}=await sb.from('scos_leads_inbox').select('*').eq('status','new'); if(error||!data||!data.length)return;
+  let n=0; data.forEach(L=>{ if(!L.name)return; const now=Date.now()+(n++);
+    const s=st('s'+now,L.name,L.source||'ambassador',L.ambassador_id||null,L.campus_id||null,L.country||DB.config.countries[0],'lead',null,now,now,'From Ambassador portal — assign','Assign counselor',now+24*3600e3);
+    if(L.note)s.history.unshift({ts:now,who:'Ambassador portal',note:'Note: '+L.note}); DB.students.unshift(s); });
+  const ids=data.map(d=>d.id); await sb.from('scos_leads_inbox').update({status:'imported'}).in('id',ids);
+  if(n){ logAudit('Cloud: ambassador leads in',n+' lead(s) via inbox'); save(); } }catch(e){} }
+async function doCloudLogin(){
+  const email=(document.getElementById('cuser').value||'').trim(), pass=document.getElementById('cpass').value||'';
+  const err=document.getElementById('lerr'); err.textContent='Connecting…';
+  try{ const sb=await cloudClient(); const {data,error}=await sb.auth.signInWithPassword({email,password:pass}); if(error)throw error;
+    CLOUD_USER=data.user; const role=await cloudFetchRole(CLOUD_USER.id);
+    SESSION={u:email,role,personId:(DB.users.find(u=>u.role===role)||{}).personId,cloud:true}; err.textContent='';
+    enterApp(); await cloudPull(); cloudSubscribe();
+  }catch(e){ err.textContent='Cloud sign-in failed: '+((e&&e.message)||'error'); } }
+async function cloudSignOut(){ try{ if(SB)await SB.auth.signOut(); }catch(e){} CLOUD_USER=null; }
+function toggleCloudLogin(){ const w=document.getElementById('cloudLoginWrap'),l=document.getElementById('cloudToggleLink');
+  const show=w.style.display==='none'; w.style.display=show?'block':'none'; l.textContent=show?'↩ Back to local sign-in':'☁ Use cloud sign-in for live team sync →'; }
+async function cloudBoot(){ if(!cloudEnabled())return; try{ const sb=await cloudClient(); const {data}=await sb.auth.getSession();
+  if(data&&data.session){ CLOUD_USER=data.session.user; const role=await cloudFetchRole(CLOUD_USER.id);
+    SESSION={u:CLOUD_USER.email,role,personId:(DB.users.find(u=>u.role===role)||{}).personId,cloud:true}; enterApp(); await cloudPull(); cloudSubscribe(); } }catch(e){} }
+function cloudReadCfg(){ const u=document.getElementById('cfgUrl'),k=document.getElementById('cfgKey'); if(u)cloudCfg().url=u.value.trim(); if(k&&k.value&&!k.value.includes('…'))cloudCfg().key=k.value.trim(); }
+function cloudToggle(on){ cloudReadCfg(); cloudCfg().on=on; save(); if(on)alert('Cloud enabled. Reload (Ctrl+Shift+R), then use ☁ Cloud sign-in on the login screen.'); render(); }
+async function cloudTest(){ cloudReadCfg(); save(); const m=document.getElementById('cloudMsg'); if(m)m.textContent='Testing…';
+  try{ const sb=await cloudClient(); const {error}=await sb.from('scos_state').select('id').limit(1); if(error)throw error;
+    if(m){m.style.color='var(--green)';m.textContent='✓ Connected — tables reachable.';} }
+  catch(e){ if(m){m.style.color='var(--red)';m.textContent='✗ '+((e&&e.message)||'failed')+' — run the SQL first?';} } }
+function cloudCopySQL(){ try{ navigator.clipboard.writeText(SCOS_SQL); alert('One-time SQL copied. Paste into Supabase → SQL Editor → Run.'); }catch(e){ alert('Copy failed — select it manually from the console.'); console.log(SCOS_SQL); } }
+function cloudPanel(){ const c=cloudCfg(), on=cloudEnabled();
+  return `<div class="panel"><h3><span class="ic">☁</span> Shared Cloud Sync (Supabase) <span class="tag">${on?'<span style="color:var(--green)">enabled</span>':'<span style="color:var(--amber)">off</span>'}</span></h3>
+    <div class="secrow"><span class="ok">✓</span> Same Supabase project as GPOS — one shared cloud</div>
+    <div class="secrow"><span class="ok">✓</span> Realtime sync across all Command Center users</div>
+    <div class="secrow"><span class="ok">✓</span> Ambassador leads arrive live via the <b>scos_leads_inbox</b> bridge</div>
+    <div class="frow" style="margin-top:12px"><label>Supabase URL</label><input id="cfgUrl" value="${c.url||''}" title="Supabase URL"></div>
+    <div class="frow"><label>Anon public key</label><input id="cfgKey" value="${(c.key||'').slice(0,18)}…(${(c.key||'').length} chars — re-paste to change)" title="Anon key"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" onclick="cloudTest()">Test connection</button>
+      <button class="btn ${on?'danger':'green'}" onclick="cloudToggle(${on?'false':'true'})">${on?'Disable cloud':'Enable cloud'}</button>
+      <button class="btn ghost" onclick="cloudCopySQL()">Copy one-time SQL</button></div>
+    <div id="cloudMsg" class="note-s"></div>
+    <div class="note-s">Setup: (1) Copy SQL → Supabase → SQL Editor → Run; (2) Auth → Users → add accounts (the FIRST becomes MD); (3) Enable cloud + reload; (4) sign in with ☁ Cloud on the login screen. The anon key is safe to ship — security is in the SQL row-rules. GPOS's ambassador portal gets a "Send to Ops" that writes to scos_leads_inbox (next step).</div></div>`;
+}
+const SCOS_SQL=`-- GENIUS PARK - Head of Ops and QC Command Center - Cloud (Supabase). Run once.
+create table if not exists public.scos_state (
+  id text primary key default 'main', data jsonb,
+  updated_at timestamptz default now(), updated_by uuid);
+alter table public.scos_state enable row level security;
+drop policy if exists scos_state_rw on public.scos_state;
+create policy scos_state_rw on public.scos_state for all to authenticated using (true) with check (true);
+
+create table if not exists public.scos_profiles (
+  id uuid primary key references auth.users on delete cascade,
+  email text, role text not null default 'reception', created_at timestamptz default now());
+alter table public.scos_profiles enable row level security;
+drop policy if exists scos_profiles_read on public.scos_profiles;
+create policy scos_profiles_read on public.scos_profiles for select to authenticated using (true);
+
+create table if not exists public.scos_leads_inbox (
+  id uuid primary key default gen_random_uuid(),
+  name text not null, country text, source text default 'ambassador',
+  ambassador_id text, campus_id text, note text,
+  status text default 'new', created_at timestamptz default now());
+alter table public.scos_leads_inbox enable row level security;
+drop policy if exists scos_inbox_rw on public.scos_leads_inbox;
+create policy scos_inbox_rw on public.scos_leads_inbox for all to authenticated using (true) with check (true);
+
+create or replace function public.scos_new_user() returns trigger
+  language plpgsql security definer set search_path=public as $$
+declare cnt int;
+begin
+  select count(*) into cnt from public.scos_profiles;
+  insert into public.scos_profiles(id,email,role)
+    values (new.id,new.email, case when cnt=0 then 'md' else 'reception' end)
+    on conflict (id) do nothing;
+  return new;
+end; $$;
+drop trigger if exists scos_on_new_user on auth.users;
+create trigger scos_on_new_user after insert on auth.users
+  for each row execute function public.scos_new_user();
+
+alter publication supabase_realtime add table public.scos_state;
+alter publication supabase_realtime add table public.scos_leads_inbox;`;
+
+/* ---------- BOOT ---------- */
+load();
+renderDemoChips();
+if(cloudEnabled()){ cloudBoot(); }
+else { try{ const sv=localStorage.getItem(SESS_KEY); if(sv){ const s=JSON.parse(sv); const u=DB.users.find(x=>x.u===s.u&&x.active!==false); if(u){ SESSION={u:u.u,role:u.role,personId:u.personId}; enterApp(); } } }catch(e){} }
+</script>
+</body>
+</html>

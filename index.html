@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genius Park — Loading…</title>
+<meta http-equiv="refresh" content="0; url=GPOS.html">
+<style>
+  html,body{height:100%;margin:0;background:#070f1d;color:#eaf1fb;
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;}
+  .box{text-align:center;}
+  .logo{width:72px;height:72px;border-radius:18px;margin:0 auto 18px;
+    background:linear-gradient(135deg,#2dd4bf,#e9c46a);display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:#06201d;font-size:28px;box-shadow:0 0 30px rgba(45,212,191,.35);
+    animation:pulse 2.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(45,212,191,.2)}50%{box-shadow:0 0 34px rgba(45,212,191,.5)}}
+  h1{font-size:22px;font-weight:800;margin:0 0 4px;}
+  h1 b{background:linear-gradient(90deg,#2dd4bf,#e9c46a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  p{color:#9fb6d6;font-size:13px;margin:8px 0 0;}
+  a{color:#7ff0e0;font-weight:700;text-decoration:none;}
+  .spin{margin:18px auto 0;width:26px;height:26px;border:3px solid rgba(127,240,224,.2);border-top-color:#2dd4bf;border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">GP</div>
+    <h1>GENIUS <b>PARK</b></h1>
+    <p>Opening the Command Center…</p>
+    <div class="spin"></div>
+    <p style="margin-top:16px">If it doesn't load, <a href="GPOS.html">click here →</a></p>
+  </div>
+  <script>location.replace('GPOS.html');</script>
+</body>
+</html>
