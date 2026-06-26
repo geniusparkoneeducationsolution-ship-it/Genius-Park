@@ -1,0 +1,6 @@
+# OS / editor junk only — everything else in this folder IS the live site
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
